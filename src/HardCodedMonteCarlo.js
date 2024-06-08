@@ -3,7 +3,7 @@ import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 import * as math from 'mathjs';
 
-function MonteCarloSimulation() {
+function MonteCarloSimulation({processedData}) {
   const [simulations, setSimulations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -17,26 +17,32 @@ function MonteCarloSimulation() {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData =  () => {
       try {
         // Fetch bank returns data CSV file
-        const response = await fetch('/TD_data.csv');
-        const csvString = await response.text();
 
         // Parse CSV data
-        const parsedData = Papa.parse(csvString, { header: true, dynamicTyping: true });
-        const tdData = parsedData.data;
+        // Debugging parsed data
 
         // Calculate daily returns for TD
-        const closingPrices = tdData.map(row => row['Close']);
+        const closingPrices = processedData.map(row => row.close).filter(price => price != null);
         const dailyReturns = closingPrices.map((price, index) => {
-          if (index === 0) return 0;
+          if (index === 0) return null;
           return (price - closingPrices[index - 1]) / closingPrices[index - 1];
-        }).slice(1);
+        }).filter(returnVal => returnVal != null);
+
+        console.log('Daily Returns:', dailyReturns); // Debugging daily returns
 
         // Calculate mu (drift) and sigma (volatility)
         const mu = math.mean(dailyReturns);
         const sigma = math.std(dailyReturns);
+
+        console.log('Mu (mean):', mu, 'Sigma (std dev):', sigma); // Debugging mu and sigma
+
+        // Check for NaN values in mu and sigma
+        if (isNaN(mu) || isNaN(sigma)) {
+          throw new Error('Mu or Sigma calculation resulted in NaN');
+        }
 
         // Run Monte Carlo simulations
         const days = 365;
@@ -46,7 +52,9 @@ function MonteCarloSimulation() {
         const simulationResults = [];
 
         for (let run = 0; run < numSimulations; run++) {
-          simulationResults.push(stockMonteCarlo(startPrice, days, mu, sigma, dt));
+          const result = stockMonteCarlo(startPrice, days, mu, sigma, dt);
+          console.log(`Simulation ${run + 1}:`, result); // Debugging each simulation
+          simulationResults.push(result);
         }
 
         setSimulations(simulationResults);
@@ -65,9 +73,13 @@ function MonteCarloSimulation() {
     price[0] = startPrice;
 
     for (let i = 1; i < days; i++) {
-      const shock = generateRandomNormal(mu * dt, sigma * Math.sqrt(dt));
+      const shock = generateRandomNormal(0, sigma * Math.sqrt(dt));
       const drift = mu * dt;
+      if (isNaN(shock) || isNaN(drift)) {
+        console.error(`NaN detected at day ${i}: Shock = ${shock}, Drift = ${drift}`);
+      }
       price[i] = price[i - 1] + (price[i - 1] * (drift + shock));
+      console.log(`Day ${i}: Shock = ${shock}, Drift = ${drift}, Price = ${price[i]}`); // Debugging price update
     }
 
     return price;

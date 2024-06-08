@@ -214,9 +214,9 @@ function App() {
         <ExponentialMovingAverages processedData={data} />
         <DailyReturnAnalysis processedData={data} />
         <CorrelationHeatmap />
-        <HardCodedMonteCarlo />
+        <HardCodedMonteCarlo processedData={data}/>
         <BankReturnsScatterPlot  processedData={data}/>
-        <DailyReturnHistogram />
+        <DailyReturnHistogram processedData={data}/>
       </div>
     </div>
   );
