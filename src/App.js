@@ -1,45 +1,62 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 import MonteCarloSimulation from './MonteCarloSimulation';
+import HardCodedMonteCarlo from './HardCodedMonteCarlo';
 import ExponentialMovingAverages from './ExponentialMovingAverage';
 import DailyReturnAnalysis from './DailyReturnAnalysis';
 import CorrelationHeatmap from './CorrelationHeatmap';
 import BankReturnsScatterPlot from './BankReturnsScatterPlot';
+import DailyReturnHistogram from './DailyReturnHistogram';
 
 function App() {
   const [data, setData] = useState(null);
 
-  useEffect(() => {
-    fetch('/TD_data.csv')
-      .then(response => response.text())
-      .then(csvString => {
-        const parsedData = Papa.parse(csvString, { header: true, dynamicTyping: true });
-        let processedData = parsedData.data.map(row => ({
-          date: row['Date'],
-          close: row['Close'],
-          volume: row['Volume'],
-          ma10: row['MA for 10 days'],
-          ma20: row['MA for 20 days'],
-          ma50: row['MA for 50 days'],
-          ma100: row['MA for 100 days'],
-          ema10: row['EMA for 10 days'],
-          ema20: row['EMA for 20 days'],
-          ema50: row['EMA for 50 days'],
-          ema100: row['EMA for 100 days'],
-          dailyReturn: row['Daily Return'],
-        }));
-        setData(processedData);
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        complete: (result) => {
+          let processedData = result.data.map(row => ({
+            date: row['Date'],
+            open: row['Open'],
+            close: row['Close'],
+            volume: row['Volume'],
+            high: row['High'],
+            lo: row['Low'],
+            ma10: row['MA for 10 days'],
+            ma20: row['MA for 20 days'],
+            ma50: row['MA for 50 days'],
+            ma100: row['MA for 100 days'],
+            ema10: row['EMA for 10 days'],
+            ema20: row['EMA for 20 days'],
+            ema50: row['EMA for 50 days'],
+            ema100: row['EMA for 100 days'],
+            dailyReturn: row['Daily Return'],
+          }));
+          setData(processedData);
+        },
       });
-  }, []);
+    }
+  };
 
   if (!data) {
-    return <div>Loading...</div>;
+    return (
+      <div>
+        <h1>TD Stock Data</h1>
+        <input type="file" accept=".csv" onChange={handleFileUpload} />
+      </div>
+    );
   }
 
   const dates = data.map(row => row.date);
   const closePrices = data.map(row => row.close);
+  const openPrices = data.map(row => row.open);
   const volumes = data.map(row => row.volume);
+  const highs = data.map(row => row.high);
+  const lows = data.map(row => row.low);
   const ma10 = data.map(row => row.ma10);
   const ma20 = data.map(row => row.ma20);
   const ma50 = data.map(row => row.ma50);
@@ -52,10 +69,9 @@ function App() {
 
   return (
     <div>
-      <h1>TD Stock Data</h1>
-
+      <h1>Stock Data</h1>
       <div>
-        <h2>The closing price during past year for TD stock data</h2>
+        <h2>The closing price during past year for stock data</h2>
         <Plot
           data={[
             {
@@ -66,12 +82,11 @@ function App() {
               marker: { color: 'blue' },
             },
           ]}
-          layout={{ title: 'TD Stock Closing Prices', width: 1000, height: 400 }}
+          layout={{ title: 'Stock Closing Prices', width: 1000, height: 400 }}
         />
       </div>
-
       <div>
-        <h2>Total volume of stock being traded each day over the past year for TD stock data</h2>
+        <h2>Total volume of stock being traded each day over the past year for stock data</h2>
         <Plot
           data={[
             {
@@ -81,12 +96,11 @@ function App() {
               marker: { color: 'orange' },
             },
           ]}
-          layout={{ title: 'TD Stock Trading Volume', width: 1000, height: 400 }}
+          layout={{ title: 'Stock Trading Volume', width: 1000, height: 400 }}
         />
       </div>
-
       <div>
-        <h2>Different Moving Averages for TD stock data</h2>
+        <h2>Different Moving Averages for stock data</h2>
         <Plot
           data={[
             {
@@ -130,12 +144,11 @@ function App() {
               marker: { color: 'orange' },
             },
           ]}
-          layout={{ title: 'TD Stock Moving Averages', width: 1000, height: 400 }}
+          layout={{ title: 'Stock Moving Averages', width: 1000, height: 400 }}
         />
       </div>
-
       <div>
-        <h2>Different Exponential Moving Averages for TD stock data</h2>
+        <h2>Different Exponential Moving Averages for stock data</h2>
         <Plot
           data={[
             {
@@ -179,12 +192,11 @@ function App() {
               marker: { color: 'orange' },
             },
           ]}
-          layout={{ title: 'TD Stock Exponential Moving Averages', width: 1000, height: 400 }}
+          layout={{ title: 'Stock Exponential Moving Averages', width: 1000, height: 400 }}
         />
       </div>
-
       <div>
-        <h2>The daily return percentage for TD stock data</h2>
+        <h2>The daily return percentage for stock data</h2>
         <Plot
           data={[
             {
@@ -196,13 +208,15 @@ function App() {
               marker: { color: 'blue' },
             },
           ]}
-          layout={{ title: 'TD Stock Daily Return Percentage', width: 1000, height: 400 }}
+          layout={{ title: 'Stock Daily Return Percentage', width: 1000, height: 400 }}
         />
-        <MonteCarloSimulation/>
-        <ExponentialMovingAverages/>
-        <DailyReturnAnalysis/>
-        <CorrelationHeatmap/>
-        <BankReturnsScatterPlot/>
+        <MonteCarloSimulation />
+        <ExponentialMovingAverages processedData={data} />
+        <DailyReturnAnalysis processedData={data} />
+        <CorrelationHeatmap />
+        <HardCodedMonteCarlo />
+        <BankReturnsScatterPlot  processedData={data}/>
+        <DailyReturnHistogram />
       </div>
     </div>
   );

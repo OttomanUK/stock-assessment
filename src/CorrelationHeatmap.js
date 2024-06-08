@@ -1,106 +1,109 @@
 import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
+import * as ss from 'simple-statistics';
 
 function CorrelationHeatmap() {
-  const [correlationMatrix, setCorrelationMatrix] = useState([]);
-  const [labels, setLabels] = useState([]);
+  const [bankReturnsCorrelation, setBankReturnsCorrelation] = useState([]);
+  const [closingPricesCorrelation, setClosingPricesCorrelation] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [columns, setColumns] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch the CSV data
+        setIsLoading(true);
+        // Fetch the CSV file
         const response = await fetch('/TD_data.csv');
         const csvString = await response.text();
 
         // Parse CSV data
         const parsedData = Papa.parse(csvString, { header: true, dynamicTyping: true });
-        const tdData = parsedData.data;
+        const stockData = parsedData.data;
 
-        // Extract relevant columns for correlation calculation
-        const columns = ['Close', 'Volume', 'MA for 10 days', 'MA for 20 days', 'MA for 50 days', 'MA for 100 days', 'EMA for 10 days', 'EMA for 20 days', 'EMA for 50 days', 'EMA for 100 days', 'Daily Return'];
-        const data = tdData.map(row => columns.map(col => row[col]));
-    console.log(data)
-        // Calculate correlation matrix
-        const correlationMatrix = calculateCorrelationMatrix(data);
+        // Get column names for heatmap labels
+        setColumns(parsedData.meta.fields);
 
-        // Set correlation matrix and labels
-        setCorrelationMatrix(correlationMatrix);
-        setLabels(columns);
+        // Process data to calculate returns and correlations
+        const { bankReturnsCorrelation, closingPricesCorrelation } = processStockData(stockData);
+
+        setBankReturnsCorrelation(bankReturnsCorrelation);
+        setClosingPricesCorrelation(closingPricesCorrelation);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching or parsing data:', error);
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  const calculateCorrelationMatrix = (data) => {
-    const correlationMatrix = [];
-    const n = data.length;
+  const processStockData = (data) => {
+    // Extract closing prices
+    const closingPrices = data.map(row => row['Close']);
 
-    for (let i = 0; i < data[0].length; i++) {
-      correlationMatrix[i] = [];
-      for (let j = 0; j < data[0].length; j++) {
-        let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
-        for (let k = 0; k < n; k++) {
-          sumX += data[k][i];
-          sumY += data[k][j];
-          sumXY += data[k][i] * data[k][j];
-          sumX2 += data[k][i] * data[k][i];
-          sumY2 += data[k][j] * data[k][j];
-        }
-        const corr = (n * sumXY - sumX * sumY) / (Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY)));
-        correlationMatrix[i][j] = corr;
-      }
+    // Calculate daily returns
+    const dailyReturns = [];
+    for (let i = 1; i < closingPrices.length; i++) {
+      dailyReturns.push((closingPrices[i] - closingPrices[i - 1]) / closingPrices[i - 1]);
     }
 
-    return correlationMatrix;
+    // Calculate correlation matrices
+    const bankReturnsCorrelation = calculateCorrelationMatrix([dailyReturns]);
+    const closingPricesCorrelation = calculateCorrelationMatrix([closingPrices]);
+
+    return { bankReturnsCorrelation, closingPricesCorrelation };
   };
+
+  const calculateCorrelationMatrix = (dataArrays) => {
+    const matrix = dataArrays.map(arr1 => dataArrays.map(arr2 => ss.sampleCorrelation(arr1, arr2)));
+    return matrix;
+  };
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div>
-      <h1>Correlation Heatmap for TD Stock Data</h1>
-      {correlationMatrix.length > 0 && (
+      <h1>Bank Returns Correlation Heatmap</h1>
+      {bankReturnsCorrelation.length > 0 && (
         <Plot
           data={[
             {
-              z: correlationMatrix,
-              x: labels,
-              y: labels,
+              z: bankReturnsCorrelation,
+              x: columns,
+              y: columns,
               type: 'heatmap',
               colorscale: 'YlGnBu',
               showscale: true,
+              zmin: -1,
+              zmax: 1,
             },
           ]}
-          layout={{ title: 'Correlation Heatmap', width: 1000, height: 800, annotations: createAnnotations(correlationMatrix, labels) }}
+          layout={{ title: 'Bank Returns Correlation Heatmap', width: 800, height: 600 }}
+        />
+      )}
+
+      <h1>Closing Prices Correlation Heatmap</h1>
+      {closingPricesCorrelation.length > 0 && (
+        <Plot
+          data={[
+            {
+              z: closingPricesCorrelation,
+              x: columns,
+              y: columns,
+              type: 'heatmap',
+              colorscale: 'YlGnBu',
+              showscale: true,
+              zmin: -1,
+              zmax: 1,
+            },
+          ]}
+          layout={{ title: 'Closing Prices Correlation Heatmap', width: 800, height: 600 }}
         />
       )}
     </div>
   );
 }
-
-const createAnnotations = (matrix, labels) => {
-  const annotations = [];
-  for (let i = 0; i < matrix.length; i++) {
-    for (let j = 0; j < matrix[i].length; j++) {
-      const value = matrix[i][j].toFixed(3);
-      annotations.push({
-        x: labels[j],
-        y: labels[i],
-        xref: 'x1',
-        yref: 'y1',
-        text: value,
-        showarrow: false,
-        font: {
-          family: 'Arial',
-          size: 12,
-          color: 'black',
-        },
-      });
-    }
-  }
-  return annotations;
-};
 
 export default CorrelationHeatmap;

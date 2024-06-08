@@ -2,34 +2,30 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 
-function ExponentialMovingAverages() {
+function ExponentialMovingAverages({processedData}) {
   const [emaData, setEmaData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [dailyReturnData, setDailyReturnData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData =  () => {
       try {
         setIsLoading(true);
 
-        // Fetch TD stock data CSV file
-        const response = await fetch('/TD_data.csv');
-        const csvString = await response.text();
-
+        // Fetch TD stock 
         // Parse CSV data
-        const parsedData = Papa.parse(csvString, { header: true, dynamicTyping: true });
-        const tdData = parsedData.data;
 
         // Calculate exponential moving averages
         const emaDay = [10, 20, 50, 100];
         const emaData = emaDay.map(span => ({
           columnName: `EMA for ${span} days`,
-          values: calculateEMA(tdData.map(row => ({ date: row['Date'], value: row['Close'] })), span),
+          values: calculateEMA(processedData.map(row => ({ date: row.date, value: row.close})), span),
         }));
         setEmaData(emaData);
+        console.log(processedData[8])
 
         // Calculate daily return percentage
-        const dailyReturn = calculateDailyReturn(tdData.map(row => ({ date: row['Date'], value: row['Close'] })));
+        const dailyReturn = calculateDailyReturn(processedData.map(row => ({ date: row.date, value: row.close})));
         setDailyReturnData(dailyReturn);
 
         setIsLoading(false);

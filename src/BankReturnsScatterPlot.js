@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 
-function BankReturnsScatterPlot() {
+function BankReturnsScatterPlot({processedData}) {
   const [bankReturns, setBankReturns] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -10,16 +10,16 @@ function BankReturnsScatterPlot() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        // Fetch the CSV data
-        const response = await fetch('/TD_data.csv');
-        const csvString = await response.text();
         
         // Parse CSV data
-        const parsedData = Papa.parse(csvString, { header: true, dynamicTyping: true });
-        const tdData = parsedData.data;
-        
+
+        // Ensure processedData is not empty
+        if (!processedData || processedData.length === 0) {
+          throw new Error('No data found in the CSV file');
+        }
+
         // Calculate returns
-        const bankReturns = calculateBankReturns(tdData);
+        const bankReturns = calculateBankReturns(processedData);
         setBankReturns(bankReturns);
 
         setIsLoading(false);
@@ -35,8 +35,8 @@ function BankReturnsScatterPlot() {
   const calculateBankReturns = (data) => {
     const bankReturns = [];
     for (let i = 1; i < data.length; i++) {
-      const returnRate = (data[i]['Close'] - data[i - 1]['Close']) / data[i - 1]['Close'];
-      bankReturns.push({ date: data[i]['Date'], returnRate });
+      const returnRate = (data[i].close - data[i - 1].close) / data[i - 1].close;
+      bankReturns.push({ date: data[i].date, returnRate });
     }
     return bankReturns;
   };
@@ -45,7 +45,7 @@ function BankReturnsScatterPlot() {
 
   return (
     <div>
-      <h1>Scatter Plot of TD Bank Returns</h1>
+      <h1>Scatter Plot of Bank Returns</h1>
       {bankReturns.length > 0 && (
         <Plot
           data={[
@@ -58,7 +58,7 @@ function BankReturnsScatterPlot() {
             },
           ]}
           layout={{
-            title: 'TD Bank Daily Return Percentage',
+            title:  'Bank Daily Return Percentage',
             xaxis: { title: 'Date' },
             yaxis: { title: 'Daily Return' },
             width: 1000,

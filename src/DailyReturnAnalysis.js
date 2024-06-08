@@ -3,22 +3,17 @@ import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 import * as sns from 'plotly.js/dist/plotly-cartesian';
 
-function DailyReturnAnalysis() {
+function DailyReturnAnalysis({processedData}) {
   const [dailyReturnData, setDailyReturnData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch TD stock data CSV file
-        const response = await fetch('/TD_data.csv');
-        const csvString = await response.text();
-
-        // Parse CSV data
-        const parsedData = Papa.parse(csvString, { header: true, dynamicTyping: true });
-        const tdData = parsedData.data;
+        // Fetch stock data CSV file
+        
 
         // Calculate daily return percentage
-        const dailyReturn = calculateDailyReturn(tdData.map(row => row['Close']));
+        const dailyReturn = calculateDailyReturn(processedData.map(row => row.close));
         setDailyReturnData(dailyReturn);
       } catch (error) {
         console.error('Error fetching or parsing data:', error);
@@ -38,7 +33,7 @@ function DailyReturnAnalysis() {
 
   return (
     <div>
-      <h1>Daily Return Analysis for TD Stock</h1>
+      <h1>Daily Return Analysis for Stock</h1>
       {dailyReturnData.length > 0 && (
         <div>
           <h2>Daily Return Percentage Plot</h2>
