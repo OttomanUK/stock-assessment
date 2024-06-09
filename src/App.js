@@ -8,7 +8,8 @@ import DailyReturnAnalysis from './DailyReturnAnalysis';
 import CorrelationHeatmap from './CorrelationHeatmap';
 import BankReturnsScatterPlot from './BankReturnsScatterPlot';
 import DailyReturnHistogram from './DailyReturnHistogram';
-
+import Dropzone from "react-dropzone";
+import FinalPriceDistribution from './FinalPriceDistribution'; 
 function App() {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -262,6 +263,7 @@ function App() {
         <HardCodedMonteCarlo processedData={data}/>
         <BankReturnsScatterPlot  processedData={data}/>
         <DailyReturnHistogram processedData={data}/>
+        <FinalPriceDistribution processedData={data}/>
       </div>
     </div>
   );
