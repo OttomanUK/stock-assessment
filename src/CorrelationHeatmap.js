@@ -15,6 +15,9 @@ function CorrelationHeatmap() {
         setIsLoading(true);
         // Fetch the CSV file
         const response = await fetch('/TD_data.csv');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
         const csvString = await response.text();
 
         // Parse CSV data
@@ -41,7 +44,7 @@ function CorrelationHeatmap() {
 
   const processStockData = (data) => {
     // Extract closing prices
-    const closingPrices = data.map(row => row['Close']);
+    const closingPrices = data.map(row => row['Close']).filter(price => price != null);
 
     // Calculate daily returns
     const dailyReturns = [];
@@ -71,8 +74,8 @@ function CorrelationHeatmap() {
           data={[
             {
               z: bankReturnsCorrelation,
-              x: columns,
-              y: columns,
+              x: ['Daily Returns'],
+              y: ['Daily Returns'],
               type: 'heatmap',
               colorscale: 'YlGnBu',
               showscale: true,
@@ -90,8 +93,8 @@ function CorrelationHeatmap() {
           data={[
             {
               z: closingPricesCorrelation,
-              x: columns,
-              y: columns,
+              x: ['Closing Prices'],
+              y: ['Closing Prices'],
               type: 'heatmap',
               colorscale: 'YlGnBu',
               showscale: true,

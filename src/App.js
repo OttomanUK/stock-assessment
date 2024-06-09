@@ -8,6 +8,7 @@ import DailyReturnAnalysis from './DailyReturnAnalysis';
 import CorrelationHeatmap from './CorrelationHeatmap';
 import BankReturnsScatterPlot from './BankReturnsScatterPlot';
 import DailyReturnHistogram from './DailyReturnHistogram';
+import RiskAssessment from './RiskAssessment';
 
 function App() {
   const [data, setData] = useState(null);
@@ -217,6 +218,7 @@ function App() {
         <HardCodedMonteCarlo processedData={data}/>
         <BankReturnsScatterPlot  processedData={data}/>
         <DailyReturnHistogram processedData={data}/>
+        <RiskAssessment/>
       </div>
     </div>
   );
