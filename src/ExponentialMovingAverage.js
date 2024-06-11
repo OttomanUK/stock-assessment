@@ -22,7 +22,6 @@ function ExponentialMovingAverages({processedData}) {
           values: calculateEMA(processedData.map(row => ({ date: row.date, value: row.close})), span),
         }));
         setEmaData(emaData);
-        console.log(processedData[8])
 
         // Calculate daily return percentage
         const dailyReturn = calculateDailyReturn(processedData.map(row => ({ date: row.date, value: row.close})));

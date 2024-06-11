@@ -31,13 +31,13 @@ function MonteCarloSimulation({processedData}) {
           return (price - closingPrices[index - 1]) / closingPrices[index - 1];
         }).filter(returnVal => returnVal != null);
 
-        console.log('Daily Returns:', dailyReturns); // Debugging daily returns
+        // console.log('Daily Returns:', dailyReturns); // Debugging daily returns
 
         // Calculate mu (drift) and sigma (volatility)
         const mu = math.mean(dailyReturns);
         const sigma = math.std(dailyReturns);
 
-        console.log('Mu (mean):', mu, 'Sigma (std dev):', sigma); // Debugging mu and sigma
+        // console.log('Mu (mean):', mu, 'Sigma (std dev):', sigma); // Debugging mu and sigma
 
         // Check for NaN values in mu and sigma
         if (isNaN(mu) || isNaN(sigma)) {
@@ -53,7 +53,7 @@ function MonteCarloSimulation({processedData}) {
 
         for (let run = 0; run < numSimulations; run++) {
           const result = stockMonteCarlo(startPrice, days, mu, sigma, dt);
-          console.log(`Simulation ${run + 1}:`, result); // Debugging each simulation
+          // console.log(`Simulation ${run + 1}:`, result); // Debugging each simulation
           simulationResults.push(result);
         }
 
@@ -75,9 +75,9 @@ function MonteCarloSimulation({processedData}) {
     for (let i = 1; i < days; i++) {
       const shock = generateRandomNormal(0, sigma * Math.sqrt(dt));
       const drift = mu * dt;
-      if (isNaN(shock) || isNaN(drift)) {
-        console.error(`NaN detected at day ${i}: Shock = ${shock}, Drift = ${drift}`);
-      }
+      // if (isNaN(shock) || isNaN(drift)) {
+      //   console.error(`NaN detected at day ${i}: Shock = ${shock}, Drift = ${drift}`);
+      // }
       price[i] = price[i - 1] + (price[i - 1] * (drift + shock));
       console.log(`Day ${i}: Shock = ${shock}, Drift = ${drift}, Price = ${price[i]}`); // Debugging price update
     }
