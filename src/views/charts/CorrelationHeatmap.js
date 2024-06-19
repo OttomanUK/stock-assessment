@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 import * as ss from 'simple-statistics';
-
+import { useSelector, useDispatch } from 'react-redux'
 function CorrelationHeatmap() {
+  const dispatch = useDispatch()
+  const processedData = useSelector((state) => state.processedData)
   const [bankReturnsCorrelation, setBankReturnsCorrelation] = useState([]);
   const [closingPricesCorrelation, setClosingPricesCorrelation] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -83,7 +85,8 @@ function CorrelationHeatmap() {
               zmax: 1,
             },
           ]}
-          layout={{ title: 'Bank Returns Correlation Heatmap', width: 800, height: 600 }}
+          layout={{ title: 'Bank Returns Correlation Heatmap', width: 800, height: 600,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)', }}
         />
       )}
 

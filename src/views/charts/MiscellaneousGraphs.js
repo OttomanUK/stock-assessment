@@ -3,6 +3,7 @@ import Plot from 'react-plotly.js'
 import Papa from 'papaparse'
 import MonteCarloSimulation from './MonteCarloSimulation'
 import HardCodedMonteCarlo from './HardCodedMonteCarlo'
+import { useSelector, useDispatch } from 'react-redux'
 import ExponentialMovingAverages from './ExponentialMovingAverage'
 import DailyReturnAnalysis from './DailyReturnAnalysis'
 import CorrelationHeatmap from './CorrelationHeatmap'
@@ -13,6 +14,8 @@ import FinalPriceDistribution from './FinalPriceDistribution'
 function MiscellaneousGraphs() {
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
+  const dispatch = useDispatch()
+  const processedData = useSelector((state) => state.processedData)
 
   const baseStyle = {
     border: '2px dashed #cccccc',
@@ -32,7 +35,7 @@ function MiscellaneousGraphs() {
         header: true,
         dynamicTyping: true,
         complete: (result) => {
-          let processedData = result.data.map((row) => ({
+          let processedData1 = result.data.map((row) => ({
             date: row['Date'],
             open: row['Open'],
             close: row['Close'],
@@ -49,7 +52,8 @@ function MiscellaneousGraphs() {
             ema100: row['EMA for 100 days'],
             dailyReturn: row['Daily Return'],
           }))
-          setData(processedData)
+          console.log("uess")
+          dispatch({ type: 'set', processedData: processedData1 })
         },
       })
       setError('')
@@ -58,7 +62,7 @@ function MiscellaneousGraphs() {
     }
   }
 
-  if (!data) {
+  if (!processedData) {
     return (
       <div>
         <h1>TD Stock Data</h1>
@@ -84,21 +88,21 @@ function MiscellaneousGraphs() {
     )
   }
 
-  const dates = data.map((row) => row.date)
-  const closePrices = data.map((row) => row.close)
-  const openPrices = data.map((row) => row.open)
-  const volumes = data.map((row) => row.volume)
-  const highs = data.map((row) => row.high)
-  const lows = data.map((row) => row.low)
-  const ma10 = data.map((row) => row.ma10)
-  const ma20 = data.map((row) => row.ma20)
-  const ma50 = data.map((row) => row.ma50)
-  const ma100 = data.map((row) => row.ma100)
-  const ema10 = data.map((row) => row.ema10)
-  const ema20 = data.map((row) => row.ema20)
-  const ema50 = data.map((row) => row.ema50)
-  const ema100 = data.map((row) => row.ema100)
-  const dailyReturns = data.map((row) => row.dailyReturn)
+  const dates = processedData.map((row) => row.date)
+  const closePrices = processedData.map((row) => row.close)
+  const openPrices = processedData.map((row) => row.open)
+  const volumes = processedData.map((row) => row.volume)
+  const highs = processedData.map((row) => row.high)
+  const lows = processedData.map((row) => row.low)
+  const ma10 = processedData.map((row) => row.ma10)
+  const ma20 = processedData.map((row) => row.ma20)
+  const ma50 = processedData.map((row) => row.ma50)
+  const ma100 = processedData.map((row) => row.ma100)
+  const ema10 = processedData.map((row) => row.ema10)
+  const ema20 = processedData.map((row) => row.ema20)
+  const ema50 = processedData.map((row) => row.ema50)
+  const ema100 = processedData.map((row) => row.ema100)
+  const dailyReturns = processedData.map((row) => row.dailyReturn)
 
   return (
     <div>
@@ -115,7 +119,8 @@ function MiscellaneousGraphs() {
               marker: { color: 'blue' },
             },
           ]}
-          layout={{ title: 'Stock Closing Prices', width: 1000, height: 400 }}
+          layout={{ title: 'Stock Closing Prices', width: 1000, height: 400 ,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',}}
         />
       </div>
       <div>
@@ -129,7 +134,8 @@ function MiscellaneousGraphs() {
               marker: { color: 'orange' },
             },
           ]}
-          layout={{ title: 'Stock Trading Volume', width: 1000, height: 400 }}
+          layout={{ title: 'Stock Trading Volume', width: 1000, height: 400 ,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',}}
         />
       </div>
       <div>
@@ -177,7 +183,8 @@ function MiscellaneousGraphs() {
               marker: { color: 'orange' },
             },
           ]}
-          layout={{ title: 'Stock Moving Averages', width: 1000, height: 400 }}
+          layout={{ title: 'Stock Moving Averages', width: 1000, height: 400,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)', }}
         />
       </div>
       <div>
@@ -228,7 +235,8 @@ function MiscellaneousGraphs() {
           layout={{
             title: 'Stock Exponential Moving Averages',
             width: 1000,
-            height: 400,
+            height: 400,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',
           }}
         />
       </div>
@@ -249,14 +257,16 @@ function MiscellaneousGraphs() {
             title: 'Stock Daily Return Percentage',
             width: 1000,
             height: 400,
+            plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',
           }}
         />
       </div>
-      <ExponentialMovingAverages processedData={data} />
-      <DailyReturnAnalysis processedData={data} />
+      <ExponentialMovingAverages />
+      <DailyReturnAnalysis />
       <CorrelationHeatmap />
-      <BankReturnsScatterPlot processedData={data} />
-      <DailyReturnHistogram processedData={data} />
+      <BankReturnsScatterPlot />
+      <DailyReturnHistogram />
     </div>
   )
 }

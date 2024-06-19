@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
-
-function BankReturnsScatterPlot({processedData}) {
+import { useSelector, useDispatch } from 'react-redux'
+function BankReturnsScatterPlot() {
+  const dispatch = useDispatch()
+  const processedData = useSelector((state) => state.processedData)
   const [bankReturns, setBankReturns] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -62,6 +64,8 @@ function BankReturnsScatterPlot({processedData}) {
             yaxis: { title: 'Daily Return' },
             width: 1000,
             height: 600,
+            plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',
           }}
         />
       )}

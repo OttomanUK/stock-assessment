@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import Plot from 'react-plotly.js'
 import {CCard, CCardBody} from '@coreui/react'
-
+import { useSelector, useDispatch } from 'react-redux'
 
 function MonteCarloSimulation() {
+  const dispatch = useDispatch()
+  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const [startPrice, setStartPrice] = useState(56.299999)
   const [days, setDays] = useState(100)
   const [mu, setMu] = useState(0.1)
@@ -90,6 +92,8 @@ function MonteCarloSimulation() {
                     title: 'Monte Carlo Simulation for TD',
                     width: 1000,
                     height: 400,
+                    plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+                    paper_bgcolor: 'rgba(0, 0, 0, 0)',
                     xaxis: { title: 'Days' },
                     yaxis: { title: 'Price' },
                   }}

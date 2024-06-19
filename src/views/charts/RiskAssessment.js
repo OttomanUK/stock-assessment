@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 import * as math from 'mathjs';
-
+import { useSelector, useDispatch } from 'react-redux'
 function RiskAssessment() {
+  const dispatch = useDispatch()
+  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const [simulations, setSimulations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const days = 365;
