@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 import * as sns from 'plotly.js/dist/plotly-cartesian';
-
-function DailyReturnAnalysis({processedData}) {
+import { useSelector, useDispatch } from 'react-redux'
+function DailyReturnAnalysis() {
   const [dailyReturnData, setDailyReturnData] = useState([]);
+  const dispatch = useDispatch()
+  const processedData = useSelector((state) => state.processedData)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,7 +49,8 @@ function DailyReturnAnalysis({processedData}) {
                 marker: { color: 'blue' },
               },
             ]}
-            layout={{ title: 'Daily Return Percentage Plot', width: 1000, height: 400 }}
+            layout={{ title: 'Daily Return Percentage Plot', width: 1000, height: 400 ,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+              paper_bgcolor: 'rgba(0, 0, 0, 0)',}}
           />
 
           <h2>Distribution of Daily Return</h2>
@@ -58,7 +61,8 @@ function DailyReturnAnalysis({processedData}) {
                 type: 'histogram',
               },
             ]}
-            layout={{ title: 'Distribution of Daily Return', width: 1000, height: 400 }}
+            layout={{ title: 'Distribution of Daily Return', width: 1000, height: 400,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+              paper_bgcolor: 'rgba(0, 0, 0, 0)', }}
           />
 
           <h2>Pairplot for Daily Return</h2>

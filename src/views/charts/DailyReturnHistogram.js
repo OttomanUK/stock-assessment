@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
-
-function DailyReturnHistogram({processedData}) {
+import { useSelector, useDispatch } from 'react-redux'
+function DailyReturnHistogram() {
   const [dailyReturnData, setDailyReturnData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const dispatch = useDispatch()
+  const processedData = useSelector((state) => state.processedData)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -46,6 +48,8 @@ function DailyReturnHistogram({processedData}) {
             yaxis: { title: 'Frequency' },
             width: 1000,
             height: 400,
+            plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',
           }}
         />
       )}

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
-import PropTypes from 'prop-types'
-
+import React, { useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 import {
   CRow,
   CCol,
@@ -9,34 +9,77 @@ import {
   CDropdownItem,
   CDropdownToggle,
   CWidgetStatsA,
-} from '@coreui/react'
-import { getStyle } from '@coreui/utils'
-import { CChartBar, CChartLine } from '@coreui/react-chartjs'
-import CIcon from '@coreui/icons-react'
-import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
+} from '@coreui/react';
+import { getStyle } from '@coreui/utils';
+import { CChartBar, CChartLine } from '@coreui/react-chartjs';
+import CIcon from '@coreui/icons-react';
+import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons';
 
 const WidgetsDropdown = (props) => {
-  const widgetChartRef1 = useRef(null)
-  const widgetChartRef2 = useRef(null)
+  const calculateStatistics = (data) => {
+    if (!data || data.length === 0) {
+      return {
+        averageIncome: 0,
+        lowestIncome: 0,
+        highestIncome: 0,
+      };
+    }
+  
+    const incomes = data.map((row) => row?.close || 0);
+    const positiveIncomes = incomes.filter((income) => income > 0);
+  
+    const totalIncome = positiveIncomes.reduce((sum, value) => sum + value, 0);
+    const averageIncome = totalIncome / positiveIncomes.length;
+    const lowestIncome = Math.min(...positiveIncomes);
+    const highestIncome = Math.max(...incomes);
+  
+    return {
+      averageIncome,
+      lowestIncome,
+      highestIncome,
+    };
+  };
+  
+  const processedData = useSelector((state) => state.processedData);
+
+  const widgetChartRef1 = useRef(null);
+  const widgetChartRef2 = useRef(null);
 
   useEffect(() => {
     document.documentElement.addEventListener('ColorSchemeChange', () => {
       if (widgetChartRef1.current) {
         setTimeout(() => {
-          widgetChartRef1.current.data.datasets[0].pointBackgroundColor = getStyle('--cui-primary')
-          widgetChartRef1.current.update()
-        })
+          widgetChartRef1.current.data.datasets[0].pointBackgroundColor = getStyle('--cui-primary');
+          widgetChartRef1.current.update();
+        });
       }
 
       if (widgetChartRef2.current) {
         setTimeout(() => {
-          widgetChartRef2.current.data.datasets[0].pointBackgroundColor = getStyle('--cui-info')
-          widgetChartRef2.current.update()
-        })
+          widgetChartRef2.current.data.datasets[0].pointBackgroundColor = getStyle('--cui-info');
+          widgetChartRef2.current.update();
+        });
       }
-    })
-  }, [widgetChartRef1, widgetChartRef2])
+    });
+  }, [widgetChartRef1, widgetChartRef2]);
 
+  if (!processedData || processedData.length === 0) {
+    return <div>Loading...</div>;
+  }
+
+  const calculatePercentageChange = (current, previous) => {
+    if (!current || !previous) return 0;
+    return ((current - previous) / previous) * 100;
+  };
+
+  const recentClosePrices = processedData.map((row) => row?.close || 0);
+  const volume = processedData.map((row) => row?.volume || 0);
+  const recentHighs = processedData.map((row) => row?.high || 0);
+  const recentLows = processedData.map((row) => row?.low || 0);
+
+
+const {averageIncome,lowestIncome,
+  highestIncome} = calculateStatistics(processedData);
   return (
     <CRow className={props.className} xs={{ gutter: 4 }}>
       <CCol sm={6} xl={4} xxl={3}>
@@ -44,13 +87,14 @@ const WidgetsDropdown = (props) => {
           color="primary"
           value={
             <>
-              26K{' '}
+              ${averageIncome.toFixed(2)}{' '}
               <span className="fs-6 fw-normal">
-                (-12.4% <CIcon icon={cilArrowBottom} />)
+                ({averageIncome.toFixed(1)}%{' '}
+                <CIcon icon={averageIncome > 0 ? cilArrowTop : cilArrowBottom} />)
               </span>
             </>
           }
-          title="Users"
+          title="Income"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -70,14 +114,14 @@ const WidgetsDropdown = (props) => {
               className="mt-3 mx-3"
               style={{ height: '70px' }}
               data={{
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                 labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                 datasets: [
                   {
-                    label: 'My First dataset',
+                    label: 'Close Prices',
                     backgroundColor: 'transparent',
                     borderColor: 'rgba(255,255,255,.55)',
                     pointBackgroundColor: getStyle('--cui-primary'),
-                    data: [65, 59, 84, 84, 51, 55, 40],
+                    data: processedData.map((row) => row?.close || 0),
                   },
                 ],
               }}
@@ -102,8 +146,6 @@ const WidgetsDropdown = (props) => {
                     },
                   },
                   y: {
-                    min: 30,
-                    max: 89,
                     display: false,
                     grid: {
                       display: false,
@@ -134,13 +176,14 @@ const WidgetsDropdown = (props) => {
           color="info"
           value={
             <>
-              $6.200{' '}
+              {volume}{' '}
               <span className="fs-6 fw-normal">
-                (40.9% <CIcon icon={cilArrowTop} />)
+                ({averageIncome.toFixed(1)}%{' '}
+                <CIcon icon={averageIncome > 0 ? cilArrowTop : cilArrowBottom} />)
               </span>
             </>
           }
-          title="Income"
+          title="Volume"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -160,14 +203,14 @@ const WidgetsDropdown = (props) => {
               className="mt-3 mx-3"
               style={{ height: '70px' }}
               data={{
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                 labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                 datasets: [
                   {
-                    label: 'My First dataset',
+                    label: 'Volumes',
                     backgroundColor: 'transparent',
                     borderColor: 'rgba(255,255,255,.55)',
                     pointBackgroundColor: getStyle('--cui-info'),
-                    data: [1, 18, 9, 17, 34, 22, 11],
+                     data: [65, 59, 84, 84, 51, 55, 40],
                   },
                 ],
               }}
@@ -192,8 +235,6 @@ const WidgetsDropdown = (props) => {
                     },
                   },
                   y: {
-                    min: -9,
-                    max: 39,
                     display: false,
                     grid: {
                       display: false,
@@ -223,13 +264,14 @@ const WidgetsDropdown = (props) => {
           color="warning"
           value={
             <>
-              2.49%{' '}
+              ${highestIncome.toFixed(2)}{' '}
               <span className="fs-6 fw-normal">
-                (84.7% <CIcon icon={cilArrowTop} />)
+                ({highestIncome.toFixed(1)}%{' '}
+                <CIcon icon={highestIncome > 0 ? cilArrowTop : cilArrowBottom} />)
               </span>
             </>
           }
-          title="Conversion Rate"
+          title="High"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -248,13 +290,13 @@ const WidgetsDropdown = (props) => {
               className="mt-3"
               style={{ height: '70px' }}
               data={{
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                 labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                 datasets: [
                   {
-                    label: 'My First dataset',
+                    label: 'High Prices',
                     backgroundColor: 'rgba(255,255,255,.2)',
                     borderColor: 'rgba(255,255,255,.55)',
-                    data: [78, 81, 80, 45, 34, 12, 40],
+                   data: [65, 59, 84, 84, 51, 55, 40],
                     fill: true,
                   },
                 ],
@@ -295,13 +337,14 @@ const WidgetsDropdown = (props) => {
           color="danger"
           value={
             <>
-              44K{' '}
+              ${lowestIncome.toFixed(2)}{' '}
               <span className="fs-6 fw-normal">
-                (-23.6% <CIcon icon={cilArrowBottom} />)
+                ({lowestIncome.toFixed(1)}%{' '}
+                <CIcon icon={lowestIncome > 0 ? cilArrowTop : cilArrowBottom} />)
               </span>
             </>
           }
-          title="Sessions"
+          title="Low"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -320,30 +363,13 @@ const WidgetsDropdown = (props) => {
               className="mt-3 mx-3"
               style={{ height: '70px' }}
               data={{
-                labels: [
-                  'January',
-                  'February',
-                  'March',
-                  'April',
-                  'May',
-                  'June',
-                  'July',
-                  'August',
-                  'September',
-                  'October',
-                  'November',
-                  'December',
-                  'January',
-                  'February',
-                  'March',
-                  'April',
-                ],
+                 labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                 datasets: [
                   {
-                    label: 'My First dataset',
+                    label: 'Low Prices',
                     backgroundColor: 'rgba(255,255,255,.2)',
                     borderColor: 'rgba(255,255,255,.55)',
-                    data: [78, 81, 80, 45, 34, 12, 40, 85, 65, 23, 12, 98, 34, 84, 67, 82],
+                     data: [65, 59, 84, 84, 51, 55, 40],
                     barPercentage: 0.6,
                   },
                 ],
@@ -385,12 +411,11 @@ const WidgetsDropdown = (props) => {
         />
       </CCol>
     </CRow>
-  )
-}
+  );
+};
 
 WidgetsDropdown.propTypes = {
   className: PropTypes.string,
-  withCharts: PropTypes.bool,
-}
+};
 
-export default WidgetsDropdown
+export default WidgetsDropdown;

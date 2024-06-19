@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
-
-function ExponentialMovingAverages({processedData}) {
+import { useSelector, useDispatch } from 'react-redux'
+function ExponentialMovingAverages() {
   const [emaData, setEmaData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [dailyReturnData, setDailyReturnData] = useState([]);
+  const dispatch = useDispatch()
+  const processedData = useSelector((state) => state.processedData)
 
   useEffect(() => {
     const fetchData =  () => {
@@ -60,7 +62,7 @@ function ExponentialMovingAverages({processedData}) {
 
   return (
     <div>
-      <h1>Different Exponential Moving Averages for TD Stock</h1>
+      <h1>Different Exponential Moving Averages for  Stock</h1>
       {emaData.length > 0 && (
         <Plot
           data={emaData.map((ema, index) => ({

@@ -1,102 +1,101 @@
 import React, { useEffect, useState } from 'react'
 import Plot from 'react-plotly.js'
 import * as math from 'mathjs'
-
-function FinalPriceDistribution({ processedData }) {
-  const [finalPrices, setFinalPrices] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [statistics, setStatistics] = useState({})
+import { useSelector, useDispatch } from 'react-redux'
+import { CCard, CCardBody } from '@coreui/react'
+function FinalPriceDistribution() {
+  const [finalPrices, setFinalPrices] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [statistics, setStatistics] = useState({});
+  const dispatch = useDispatch()
+  const processedData = useSelector((state) => state.processedData)
 
   // Function to generate random normal values using Box-Muller transform
   function generateRandomNormal(mean, stdDev) {
-    let u1 = 0,
-      u2 = 0
-    while (u1 === 0) u1 = Math.random() // Converting [0,1) to (0,1)
-    while (u2 === 0) u2 = Math.random()
-    const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
-    return z0 * stdDev + mean
+    let u1 = 0, u2 = 0;
+    while (u1 === 0) u1 = Math.random(); // Converting [0,1) to (0,1)
+    while (u2 === 0) u2 = Math.random();
+    const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    return z0 * stdDev + mean;
   }
 
   useEffect(() => {
     const fetchData = () => {
       try {
         // Calculate daily returns for TD
-        const closingPrices = processedData.map((row) => row.close).filter((price) => price != null)
-        const dailyReturns = closingPrices
-          .map((price, index) => {
-            if (index === 0) return null
-            return (price - closingPrices[index - 1]) / closingPrices[index - 1]
-          })
-          .filter((returnVal) => returnVal != null)
+        const closingPrices = processedData.map(row => row.close).filter(price => price != null);
+        const dailyReturns = closingPrices.map((price, index) => {
+          if (index === 0) return null;
+          return (price - closingPrices[index - 1]) / closingPrices[index - 1];
+        }).filter(returnVal => returnVal != null);
 
         // console.log('Daily Returns:', dailyReturns); // Debugging daily returns
 
         // Calculate mu (drift) and sigma (volatility)
-        const mu = math.mean(dailyReturns)
-        const sigma = math.std(dailyReturns)
+        const mu = math.mean(dailyReturns);
+        const sigma = math.std(dailyReturns);
 
         // console.log('Mu (mean):', mu, 'Sigma (std dev):', sigma); // Debugging mu and sigma
 
         // Check for NaN values in mu and sigma
         if (isNaN(mu) || isNaN(sigma)) {
-          throw new Error('Mu or Sigma calculation resulted in NaN')
+          throw new Error('Mu or Sigma calculation resulted in NaN');
         }
 
         // Run Monte Carlo simulations
-        const days = 365
-        const dt = 1 / days
-        const startPrice = closingPrices[closingPrices.length - 1]
-        const numSimulations = 10000
-        const finalPricesArray = []
+        const days = 365;
+        const dt = 1 / days;
+        const startPrice = closingPrices[closingPrices.length - 1];
+        const numSimulations = 10000;
+        const finalPricesArray = [];
 
         for (let run = 0; run < numSimulations; run++) {
-          const result = stockMonteCarlo(startPrice, days, mu, sigma, dt)
-          finalPricesArray.push(result[result.length - 1])
+          const result = stockMonteCarlo(startPrice, days, mu, sigma, dt);
+          finalPricesArray.push(result[result.length - 1]);
         }
 
-        const q = math.quantileSeq(finalPricesArray, 0.01)
-        const meanFinalPrice = math.mean(finalPricesArray)
-        const startPriceDisplay = startPrice
+        const q = math.quantileSeq(finalPricesArray, 0.01);
+        const meanFinalPrice = math.mean(finalPricesArray);
+        const startPriceDisplay = startPrice;
 
         setStatistics({
           startPrice: startPriceDisplay,
           meanFinalPrice,
           VaR: startPrice - q,
           quantile: q,
-        })
+        });
 
-        setFinalPrices(finalPricesArray)
-        setIsLoading(false)
+        setFinalPrices(finalPricesArray);
+        setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching or parsing data:', error)
-        setIsLoading(false)
+        console.error('Error fetching or parsing data:', error);
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   const stockMonteCarlo = (startPrice, days, mu, sigma, dt) => {
-    const price = new Array(days).fill(0)
-    price[0] = startPrice
+    const price = new Array(days).fill(0);
+    price[0] = startPrice;
 
     for (let i = 1; i < days; i++) {
-      const shock = generateRandomNormal(0, sigma * Math.sqrt(dt))
-      const drift = mu * dt
+      const shock = generateRandomNormal(0, sigma * Math.sqrt(dt));
+      const drift = mu * dt;
       // if (isNaN(shock) || isNaN(drift)) {
       //   console.error(`NaN detected at day ${i}: Shock = ${shock}, Drift = ${drift}`);
       // }
-      price[i] = price[i - 1] + price[i - 1] * (drift + shock)
+      price[i] = price[i - 1] + (price[i - 1] * (drift + shock));
       // console.log(`Day ${i}: Shock = ${shock}, Drift = ${drift}, Price = ${price[i]}`); // Debugging price update
     }
 
-    return price
-  }
+    return price;
+  };
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) return <div>Loading...</div>;
 
-  const { startPrice, meanFinalPrice, VaR, quantile } = statistics
-
+  const { startPrice, meanFinalPrice, VaR, quantile } = statistics;
   return (
     <CCard className="mb-4">
       <CCardBody>
@@ -145,6 +144,8 @@ function FinalPriceDistribution({ processedData }) {
                   : [],
                 width: 1000,
                 height: 600,
+                plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+                paper_bgcolor: 'rgba(0, 0, 0, 0)',
               }}
             />
           ) : (
