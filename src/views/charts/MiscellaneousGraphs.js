@@ -12,7 +12,6 @@ import DailyReturnHistogram from './DailyReturnHistogram'
 import Dropzone from 'react-dropzone'
 import FinalPriceDistribution from './FinalPriceDistribution'
 function MiscellaneousGraphs() {
-  const [data, setData] = useState(null)
   const [error, setError] = useState('')
   const dispatch = useDispatch()
   const processedData = useSelector((state) => state.processedData)
@@ -65,7 +64,7 @@ function MiscellaneousGraphs() {
   if (!processedData) {
     return (
       <div>
-        <h1>TD Stock Data</h1>
+        <h1>Stock Data</h1>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <Dropzone onDrop={(acceptedFiles) => handleFileUpload(acceptedFiles)}>
           {({ getRootProps, getInputProps, isDragActive }) => {
@@ -187,84 +186,8 @@ function MiscellaneousGraphs() {
             paper_bgcolor: 'rgba(0, 0, 0, 0)', }}
         />
       </div>
-      <div>
-        <h2>Different Exponential Moving Averages for stock data</h2>
-        <Plot
-          data={[
-            {
-              x: dates,
-              y: closePrices,
-              type: 'scatter',
-              mode: 'lines',
-              name: 'Close',
-              marker: { color: 'blue' },
-            },
-            {
-              x: dates,
-              y: ema10,
-              type: 'scatter',
-              mode: 'lines',
-              name: 'EMA for 10 days',
-              marker: { color: 'red' },
-            },
-            {
-              x: dates,
-              y: ema20,
-              type: 'scatter',
-              mode: 'lines',
-              name: 'EMA for 20 days',
-              marker: { color: 'green' },
-            },
-            {
-              x: dates,
-              y: ema50,
-              type: 'scatter',
-              mode: 'lines',
-              name: 'EMA for 50 days',
-              marker: { color: 'purple' },
-            },
-            {
-              x: dates,
-              y: ema100,
-              type: 'scatter',
-              mode: 'lines',
-              name: 'EMA for 100 days',
-              marker: { color: 'orange' },
-            },
-          ]}
-          layout={{
-            title: 'Stock Exponential Moving Averages',
-            width: 1000,
-            height: 400,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
-            paper_bgcolor: 'rgba(0, 0, 0, 0)',
-          }}
-        />
-      </div>
-      <div>
-        <h2>The daily return percentage for stock data</h2>
-        <Plot
-          data={[
-            {
-              x: dates,
-              y: dailyReturns,
-              type: 'scatter',
-              mode: 'lines+markers',
-              name: 'Daily Return',
-              marker: { color: 'blue' },
-            },
-          ]}
-          layout={{
-            title: 'Stock Daily Return Percentage',
-            width: 1000,
-            height: 400,
-            plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
-            paper_bgcolor: 'rgba(0, 0, 0, 0)',
-          }}
-        />
-      </div>
       <ExponentialMovingAverages />
       <DailyReturnAnalysis />
-      <CorrelationHeatmap />
       <BankReturnsScatterPlot />
       <DailyReturnHistogram />
     </div>

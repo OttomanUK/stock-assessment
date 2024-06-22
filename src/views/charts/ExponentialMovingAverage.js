@@ -73,7 +73,8 @@ function ExponentialMovingAverages() {
             name: ema.columnName,
             marker: { color: index === 0 ? 'blue' : index === 1 ? 'red' : index === 2 ? 'green' : 'orange' },
           }))}
-          layout={{ title: 'Different Exponential Moving Averages for TD Stock', width: 1000, height: 400 }}
+          layout={{ title: 'Different Exponential Moving Averages for TD Stock', width: 1000, height: 400, plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',  }}
         />
       )}
 
@@ -89,7 +90,8 @@ function ExponentialMovingAverages() {
               marker: { color: 'blue' },
             },
           ]}
-          layout={{ title: 'The daily return percentage for TD Stock', width: 1000, height: 400 }}
+          layout={{ title: 'The daily return percentage for TD Stock', width: 1000, height: 400, plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)', }}
         />
       )}
     </div>

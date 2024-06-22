@@ -19,24 +19,34 @@ const WidgetsDropdown = (props) => {
   const calculateStatistics = (data) => {
     if (!data || data.length === 0) {
       return {
-        averageIncome: 0,
-        lowestIncome: 0,
-        highestIncome: 0,
+        averageOpen: 0,
+        lowestOpen: 0,
+        highestOpen: 0,
       };
     }
   
-    const incomes = data.map((row) => row?.close || 0);
-    const positiveIncomes = incomes.filter((income) => income > 0);
+    const open = data.map((row) => row?.open || 0);
+    const close = data.map((row) => row?.close || 0);
+    const volume = data.map((row) => row?.volume || 0);
+    const Opens = open.filter((Open) => Open > 0);
+    const positiveCloses = close.filter((Close) => Close > 0);
+    const Volume = volume.filter((Volume) => Volume> 0);
   
-    const totalIncome = positiveIncomes.reduce((sum, value) => sum + value, 0);
-    const averageIncome = totalIncome / positiveIncomes.length;
-    const lowestIncome = Math.min(...positiveIncomes);
-    const highestIncome = Math.max(...incomes);
+    const totalOpen = Opens.reduce((sum, value) => sum + value, 0);
+    const totalVolume = Volume.reduce((sum, value) => sum + value, 0);
+    const totalClose = positiveCloses.reduce((sum, value) => sum + value, 0);
+    const averageOpen = totalClose / Opens.length;
+    const averageClose = totalOpen / close.length;
+    const averageVolume = totalVolume / Volume.length;
+    const lowestOpen = Math.min(...Opens);
+    const highestOpen = Math.max(...open);
   
     return {
-      averageIncome,
-      lowestIncome,
-      highestIncome,
+      averageOpen,
+      lowestOpen,
+      highestOpen,
+      averageVolume,
+      averageClose
     };
   };
   
@@ -72,14 +82,14 @@ const WidgetsDropdown = (props) => {
     return ((current - previous) / previous) * 100;
   };
 
-  const recentClosePrices = processedData.map((row) => row?.close || 0);
+  const recentClosePrices = processedData.map((row) => row?.open || 0);
   const volume = processedData.map((row) => row?.volume || 0);
   const recentHighs = processedData.map((row) => row?.high || 0);
   const recentLows = processedData.map((row) => row?.low || 0);
 
 
-const {averageIncome,lowestIncome,
-  highestIncome} = calculateStatistics(processedData);
+const {averageOpen,lowestOpen,
+  highestOpen,averageVolume,averageClose} = calculateStatistics(processedData);
   return (
     <CRow className={props.className} xs={{ gutter: 4 }}>
       <CCol sm={6} xl={4} xxl={3}>
@@ -87,14 +97,14 @@ const {averageIncome,lowestIncome,
           color="primary"
           value={
             <>
-              ${averageIncome.toFixed(2)}{' '}
+              ${averageOpen.toFixed(2)}{' '}
               <span className="fs-6 fw-normal">
-                ({averageIncome.toFixed(1)}%{' '}
-                <CIcon icon={averageIncome > 0 ? cilArrowTop : cilArrowBottom} />)
+                ({averageOpen.toFixed(1)}%{' '}
+                <CIcon icon={averageOpen > 0 ? cilArrowTop : cilArrowBottom} />)
               </span>
             </>
           }
-          title="Income"
+          title="Open"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -121,7 +131,7 @@ const {averageIncome,lowestIncome,
                     backgroundColor: 'transparent',
                     borderColor: 'rgba(255,255,255,.55)',
                     pointBackgroundColor: getStyle('--cui-primary'),
-                    data: processedData.map((row) => row?.close || 0),
+                    data: processedData.map((row) => row?.open || 0),
                   },
                 ],
               }}
@@ -176,14 +186,14 @@ const {averageIncome,lowestIncome,
           color="info"
           value={
             <>
-              {volume}{' '}
+              {averageVolume.toFixed(1)}{' '}
               <span className="fs-6 fw-normal">
-                ({averageIncome.toFixed(1)}%{' '}
-                <CIcon icon={averageIncome > 0 ? cilArrowTop : cilArrowBottom} />)
+                ({averageVolume.toFixed(1)}%{' '}
+                <CIcon icon={averageVolume > 0 ? cilArrowTop : cilArrowBottom} />)
               </span>
             </>
           }
-          title="Volume"
+          title="Average Volume"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -264,10 +274,10 @@ const {averageIncome,lowestIncome,
           color="warning"
           value={
             <>
-              ${highestIncome.toFixed(2)}{' '}
+              ${highestOpen.toFixed(2)}{' '}
               <span className="fs-6 fw-normal">
-                ({highestIncome.toFixed(1)}%{' '}
-                <CIcon icon={highestIncome > 0 ? cilArrowTop : cilArrowBottom} />)
+                ({highestOpen.toFixed(1)}%{' '}
+                <CIcon icon={highestOpen > 0 ? cilArrowTop : cilArrowBottom} />)
               </span>
             </>
           }
@@ -337,10 +347,10 @@ const {averageIncome,lowestIncome,
           color="danger"
           value={
             <>
-              ${lowestIncome.toFixed(2)}{' '}
+              ${lowestOpen.toFixed(2)}{' '}
               <span className="fs-6 fw-normal">
-                ({lowestIncome.toFixed(1)}%{' '}
-                <CIcon icon={lowestIncome > 0 ? cilArrowTop : cilArrowBottom} />)
+                ({lowestOpen.toFixed(1)}%{' '}
+                <CIcon icon={lowestOpen > 0 ? cilArrowTop : cilArrowBottom} />)
               </span>
             </>
           }
@@ -403,6 +413,94 @@ const {averageIncome,lowestIncome,
                     ticks: {
                       display: false,
                     },
+                  },
+                },
+              }}
+            />
+          }
+        />
+      </CCol>
+       <CCol sm={6} xl={4} xxl={3}>
+        <CWidgetStatsA
+          color="info"
+          value={
+            <>
+              {averageClose.toFixed(1)}{' '}
+              <span className="fs-6 fw-normal">
+                ({averageClose.toFixed(1)}%{' '}
+                <CIcon icon={averageClose > 0 ? cilArrowTop : cilArrowBottom} />)
+              </span>
+            </>
+          }
+          title="Average Close"
+          action={
+            <CDropdown alignment="end">
+              <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                <CIcon icon={cilOptions} />
+              </CDropdownToggle>
+              <CDropdownMenu>
+                <CDropdownItem>Action</CDropdownItem>
+                <CDropdownItem>Another action</CDropdownItem>
+                <CDropdownItem>Something else here...</CDropdownItem>
+                <CDropdownItem disabled>Disabled action</CDropdownItem>
+              </CDropdownMenu>
+            </CDropdown>
+          }
+          chart={
+            <CChartLine
+              ref={widgetChartRef2}
+              className="mt-3 mx-3"
+              style={{ height: '70px' }}
+              data={{
+                 labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                datasets: [
+                  {
+                    label: 'Volumes',
+                    backgroundColor: 'transparent',
+                    borderColor: 'rgba(255,255,255,.55)',
+                    pointBackgroundColor: getStyle('--cui-info'),
+                     data: [65, 59, 84, 84, 51, 55, 40],
+                  },
+                ],
+              }}
+              options={{
+                plugins: {
+                  legend: {
+                    display: false,
+                  },
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    border: {
+                      display: false,
+                    },
+                    grid: {
+                      display: false,
+                      drawBorder: false,
+                    },
+                    ticks: {
+                      display: false,
+                    },
+                  },
+                  y: {
+                    display: false,
+                    grid: {
+                      display: false,
+                    },
+                    ticks: {
+                      display: false,
+                    },
+                  },
+                },
+                elements: {
+                  line: {
+                    borderWidth: 1,
+                  },
+                  point: {
+                    radius: 4,
+                    hitRadius: 10,
+                    hoverRadius: 4,
                   },
                 },
               }}

@@ -34,13 +34,13 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'HardCodedMonteCarlo',
-    to: '/HardCodedMonteCarlo',
+    name: 'Stock MonteCarlo',
+    to: '/StockMonteCarlo',
   
   },
   {
     component: CNavItem,
-    name: 'FinalPriceDistribution',
+    name: 'Final Price Distribution',
     to: '/FinalPriceDistribution',
   },
  

@@ -10,7 +10,7 @@ const routes = [
   
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/MonteCarloSimulation', name:'MonteCarloSimulation', element: MonteCarloSimulation},
-  { path: '/HardCodedMonteCarlo', name:'HardCodedMonteCarlo', element: HardCodedMonteCarlo},
+  { path: '/StockMonteCarlo', name:'HardCodedMonteCarlo', element: HardCodedMonteCarlo},
   { path: '/FinalPriceDistribution', name:'FinalPriceDistribution', element: FinalPriceDistribution}
 
 ]
