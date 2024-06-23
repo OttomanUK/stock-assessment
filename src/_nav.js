@@ -43,6 +43,21 @@ const _nav = [
     name: 'Final Price Distribution',
     to: '/FinalPriceDistribution',
   },
+  {
+    component: CNavItem,
+    name: 'Geometric Brownian Motion',
+    to: '/GeometricBrownianMotion',
+  },
+  {
+    component: CNavItem,
+    name: 'Jump Diffusion',
+    to: '/JumpDiffusion',
+  },
+  {
+    component: CNavItem,
+    name: 'Mean Reversion',
+    to: '/MeanReversion',
+  },
  
 ]
 
