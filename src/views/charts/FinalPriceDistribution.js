@@ -76,6 +76,11 @@ function FinalPriceDistribution() {
     fetchData();
   }, []);
 
+
+
+
+  
+
   const stockMonteCarlo = (startPrice, days, mu, sigma, dt) => {
     const price = new Array(days).fill(0);
     price[0] = startPrice;
@@ -103,6 +108,8 @@ function FinalPriceDistribution() {
           <h1>Final Price Distribution for TD Stock</h1>
           {finalPrices.length > 0 ? (
             <Plot
+
+            
               data={[
                 {
                   x: finalPrices,
@@ -160,7 +167,60 @@ function FinalPriceDistribution() {
         </div>
       </CCardBody>
     </CCard>
+
+    
   )
 }
+
+
+//This graph shows the distribution of daily returns obtained during the simulations.
+
+// const dailyReturnsArray = [];
+// for (let run = 0; run < numSimulations; run++) {
+//   const pricePath = stockMonteCarlo(startPrice, days, mu, sigma, dt);
+//   const dailyReturns = pricePath.map((price, index) => {
+//     if (index === 0) return null;
+//     return (price - pricePath[index - 1]) / pricePath[index - 1];
+//   }).filter(returnVal => returnVal != null);
+//   dailyReturnsArray.push(...dailyReturns);
+// }
+
+// // ... inside the return statement
+
+// {
+//   x: dailyReturnsArray,
+//   type: 'histogram',
+//   nbinsx: 100, // Adjust number of bins for better visualization
+//   marker: { color: 'orange' },
+// },
+
+
+
+
+
+
+
+
+
+
+// This graph shows how the simulated stock price evolves over each day in the simulation period.
+
+
+// const pricePaths = [];
+// for (let run = 0; run < numSimulations; run++) {
+//   const pricePath = stockMonteCarlo(startPrice, days, mu, sigma, dt);
+//   pricePaths.push(pricePath);
+// }
+
+// // ... inside the return statement
+
+// {
+//   type: 'scatter',
+//   x: [...Array(days).keys()], // Array of days (0 to days-1)
+//   y: pricePaths.map(path => path), // Each simulated price path as a line
+//   mode: 'lines', // Draw lines for each path
+//   opacity: 0.2, // Reduce opacity to see multiple paths overlaid
+//   marker: { color: 'lightgrey' }, // Use a light color for clarity
+// },
 
 export default FinalPriceDistribution
