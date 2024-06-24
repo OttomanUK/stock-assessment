@@ -58,6 +58,11 @@ const _nav = [
     name: 'Mean Reversion',
     to: '/MeanReversion',
   },
+  {
+    component: CNavItem,
+    name: 'Price Path Simulation',
+    to: '/PricePathSimulation',
+  },
  
 ]
 

@@ -30,7 +30,7 @@ function RiskAssessment() {
         const parsedData = Papa.parse(csvString, { header: true, dynamicTyping: true });
         console.log('Parsed Data:', parsedData);
         const tdData = parsedData.data;
-        console.log('TD Data:', tdData);
+        console.log(' Data:', tdData);
         const closingPrices = tdData.map(row => row['Close']);
         console.log('Closing Prices:', closingPrices);
         const dailyReturns = closingPrices.map((price, index) => {
@@ -83,7 +83,7 @@ function RiskAssessment() {
 
   return (
     <div>
-      <h1>Monte Carlo Simulation for TD Stock</h1>
+      <h1>Monte Carlo Simulation for  Stock</h1>
       <Plot
         data={[
           {
@@ -94,7 +94,7 @@ function RiskAssessment() {
           },
         ]}
         layout={{
-          title: `Risk Assessment Stock (TD) after ${days} days`,
+          title: `Risk Assessment Stock () after ${days} days`,
           xaxis: { title: 'Final Price' },
           yaxis: { title: 'Frequency' },
           shapes: [

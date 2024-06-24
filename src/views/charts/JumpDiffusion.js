@@ -98,7 +98,7 @@ function JumpDiffusion() {
       <CCard className="mb-4">
         <CCardBody>
           <div>
-            <h1>Monte Carlo Simulation for TD Stock</h1>
+            <h1>Monte Carlo Simulation for  Stock</h1>
             {simulations.length > 0 && simulations.map((sim, index) => (
               <div key={index}>
                 <h2>{sim.name}</h2>

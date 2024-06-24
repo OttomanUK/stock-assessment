@@ -36,7 +36,7 @@ function MonteCarloSimulation() {
       <CCard className="mb-4">
         <CCardBody>
           <div>
-            <h1>Monte Carlo Simulation for TD Stock</h1>
+            <h1>Monte Carlo Simulation for  Stock</h1>
             <form onSubmit={(event) => runSimulation(event)}>
               <label>
                 Starting Stock Price:
@@ -89,7 +89,7 @@ function MonteCarloSimulation() {
                     },
                   ]}
                   layout={{
-                    title: 'Monte Carlo Simulation for TD',
+                    title: 'Monte Carlo Simulation for ',
                     width: 1000,
                     height: 400,
                     plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
