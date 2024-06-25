@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import Plot from 'react-plotly.js'
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import Plot from 'react-plotly.js';
 import * as math from 'mathjs';
-import { CCard, CCardBody } from '@coreui/react'
+import { CCard, CCardBody } from '@coreui/react';
 
 function MonteCarloSimulation() {
   const [simulations, setSimulations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const dispatch = useDispatch()
-  const processedData = useSelector((state) => state.processedData)
-  // Function to generate random normal values using Box-Muller transform
+  const [startPrice, setStartPrice] = useState(56.299999);
+  const [days, setDays] = useState(365);
+  const [numSimulations, setNumSimulations] = useState(100);
+  const processedData = useSelector((state) => state.processedData);
+
   function generateRandomNormal(mean, stdDev) {
     let u1 = 0, u2 = 0;
     while (u1 === 0) u1 = Math.random(); // Converting [0,1) to (0,1)
@@ -19,56 +21,39 @@ function MonteCarloSimulation() {
   }
 
   useEffect(() => {
-    const fetchData =  () => {
-      try {
-        // Fetch bank returns data CSV file
-
-        // Parse CSV data
-        // Debugging parsed data
-
-        // Calculate daily returns for 
-        const closingPrices = processedData.map(row => row.close).filter(price => price != null);
-        const dailyReturns = closingPrices.map((price, index) => {
-          if (index === 0) return null;
-          return (price - closingPrices[index - 1]) / closingPrices[index - 1];
-        }).filter(returnVal => returnVal != null);
-
-        // console.log('Daily Returns:', dailyReturns); // Debugging daily returns
-
-        // Calculate mu (drift) and sigma (volatility)
-        const mu = math.mean(dailyReturns);
-        const sigma = math.std(dailyReturns);
-
-        // console.log('Mu (mean):', mu, 'Sigma (std dev):', sigma); // Debugging mu and sigma
-
-        // Check for NaN values in mu and sigma
-        if (isNaN(mu) || isNaN(sigma)) {
-          throw new Error('Mu or Sigma calculation resulted in NaN');
-        }
-
-        // Run Monte Carlo simulations
-        const days = 365;
-        const dt = 1 / days;
-        const startPrice = 56.299999;
-        const numSimulations = 100;
-        const simulationResults = [];
-
-        for (let run = 0; run < numSimulations; run++) {
-          const result = stockMonteCarlo(startPrice, days, mu, sigma, dt);
-          // console.log(`Simulation ${run + 1}:`, result); // Debugging each simulation
-          simulationResults.push(result);
-        }
-
-        setSimulations(simulationResults);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching or parsing data:', error);
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
+
+  const fetchData = () => {
+    try {
+      const closingPrices = processedData.map(row => row.close).filter(price => price != null);
+      const dailyReturns = closingPrices.map((price, index) => {
+        if (index === 0) return null;
+        return (price - closingPrices[index - 1]) / closingPrices[index - 1];
+      }).filter(returnVal => returnVal != null);
+
+      const mu = math.mean(dailyReturns);
+      const sigma = math.std(dailyReturns);
+
+      if (isNaN(mu) || isNaN(sigma)) {
+        throw new Error('Mu or Sigma calculation resulted in NaN');
+      }
+
+      const dt = 1 / days;
+      const simulationResults = [];
+
+      for (let run = 0; run < numSimulations; run++) {
+        const result = stockMonteCarlo(startPrice, days, mu, sigma, dt);
+        simulationResults.push(result);
+      }
+
+      setSimulations(simulationResults);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching or parsing data:', error);
+      setIsLoading(false);
+    }
+  };
 
   const stockMonteCarlo = (startPrice, days, mu, sigma, dt) => {
     const price = new Array(days).fill(0);
@@ -77,25 +62,56 @@ function MonteCarloSimulation() {
     for (let i = 1; i < days; i++) {
       const shock = generateRandomNormal(0, sigma * Math.sqrt(dt));
       const drift = mu * dt;
-      // if (isNaN(shock) || isNaN(drift)) {
-      //   console.error(`NaN detected at day ${i}: Shock = ${shock}, Drift = ${drift}`);
-      // }
       price[i] = price[i - 1] + (price[i - 1] * (drift + shock));
     }
 
     return price;
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  const handleRunSimulation = (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+    fetchData();
+  };
 
-  // if (isLoading) return <div>Loading...</div>
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <>
       <CCard className="mb-4">
         <CCardBody>
           <div>
-            <h1>Monte Carlo Simulation for  Stock</h1>
+            <h1>Monte Carlo Simulation for Stock</h1>
+            <form onSubmit={handleRunSimulation}>
+              <label>
+                Starting Stock Price:
+                <input
+                  type="number"
+                  value={startPrice}
+                  onChange={(e) => setStartPrice(parseFloat(e.target.value))}
+                />
+              </label>
+              <br />
+              <label>
+                Days of Simulation:
+                <input
+                  type="number"
+                  value={days}
+                  onChange={(e) => setDays(parseInt(e.target.value))}
+                />
+              </label>
+              <br />
+              <label>
+                Number of Simulations:
+                <input
+                  type="number"
+                  value={numSimulations}
+                  onChange={(e) => setNumSimulations(parseInt(e.target.value))}
+                />
+              </label>
+              <br />
+              <button type="submit">Run Simulation</button>
+            </form>
             {simulations.length > 0 && (
               <Plot
                 data={simulations.map((sim, index) => ({
@@ -107,7 +123,7 @@ function MonteCarloSimulation() {
                   marker: { color: 'blue' },
                 }))}
                 layout={{
-                  title: 'Monte Carlo Analysis for  Stock',
+                  title: 'Monte Carlo Analysis for Stock',
                   xaxis: { title: 'Days' },
                   yaxis: { title: 'Price' },
                   width: 1000,
@@ -121,7 +137,7 @@ function MonteCarloSimulation() {
         </CCardBody>
       </CCard>
     </>
-  )
+  );
 }
 
-export default MonteCarloSimulation
+export default MonteCarloSimulation;

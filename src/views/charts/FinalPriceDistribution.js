@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react'
-import Plot from 'react-plotly.js'
-import * as math from 'mathjs'
-import { useSelector, useDispatch } from 'react-redux'
-import { CCard, CCardBody } from '@coreui/react'
+import React, { useEffect, useState } from 'react';
+import Plot from 'react-plotly.js';
+import * as math from 'mathjs';
+import { useSelector } from 'react-redux';
+import { CCard, CCardBody } from '@coreui/react';
+
 function FinalPriceDistribution() {
   const [finalPrices, setFinalPrices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statistics, setStatistics] = useState({});
-  const dispatch = useDispatch()
-  const processedData = useSelector((state) => state.processedData)
+  const [numSimulations, setNumSimulations] = useState(10000); // Default number of simulations
+  const processedData = useSelector((state) => state.processedData);
 
   // Function to generate random normal values using Box-Muller transform
   function generateRandomNormal(mean, stdDev) {
@@ -20,66 +21,55 @@ function FinalPriceDistribution() {
   }
 
   useEffect(() => {
-    const fetchData = () => {
-      try {
-        // Calculate daily returns for TD
-        const closingPrices = processedData.map(row => row.close).filter(price => price != null);
-        const dailyReturns = closingPrices.map((price, index) => {
-          if (index === 0) return null;
-          return (price - closingPrices[index - 1]) / closingPrices[index - 1];
-        }).filter(returnVal => returnVal != null);
-
-        // console.log('Daily Returns:', dailyReturns); // Debugging daily returns
-
-        // Calculate mu (drift) and sigma (volatility)
-        const mu = math.mean(dailyReturns);
-        const sigma = math.std(dailyReturns);
-
-        // console.log('Mu (mean):', mu, 'Sigma (std dev):', sigma); // Debugging mu and sigma
-
-        // Check for NaN values in mu and sigma
-        if (isNaN(mu) || isNaN(sigma)) {
-          throw new Error('Mu or Sigma calculation resulted in NaN');
-        }
-
-        // Run Monte Carlo simulations
-        const days = 365;
-        const dt = 1 / days;
-        const startPrice = closingPrices[closingPrices.length - 1];
-        const numSimulations = 10000;
-        const finalPricesArray = [];
-
-        for (let run = 0; run < numSimulations; run++) {
-          const result = stockMonteCarlo(startPrice, days, mu, sigma, dt);
-          finalPricesArray.push(result[result.length - 1]);
-        }
-
-        const q = math.quantileSeq(finalPricesArray, 0.01);
-        const meanFinalPrice = math.mean(finalPricesArray);
-        const startPriceDisplay = startPrice;
-
-        setStatistics({
-          startPrice: startPriceDisplay,
-          meanFinalPrice,
-          VaR: startPrice - q,
-          quantile: q,
-        });
-
-        setFinalPrices(finalPricesArray);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching or parsing data:', error);
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
+  const fetchData = () => {
+    try {
+      // Calculate daily returns for TD
+      const closingPrices = processedData.map(row => row.close).filter(price => price != null);
+      const dailyReturns = closingPrices.map((price, index) => {
+        if (index === 0) return null;
+        return (price - closingPrices[index - 1]) / closingPrices[index - 1];
+      }).filter(returnVal => returnVal != null);
 
+      // Calculate mu (drift) and sigma (volatility)
+      const mu = math.mean(dailyReturns);
+      const sigma = math.std(dailyReturns);
 
+      // Check for NaN values in mu and sigma
+      if (isNaN(mu) || isNaN(sigma)) {
+        throw new Error('Mu or Sigma calculation resulted in NaN');
+      }
 
-  
+      // Run Monte Carlo simulations
+      const days = 365;
+      const dt = 1 / days;
+      const startPrice = closingPrices[closingPrices.length - 1];
+      const finalPricesArray = [];
+
+      for (let run = 0; run < numSimulations; run++) {
+        const result = stockMonteCarlo(startPrice, days, mu, sigma, dt);
+        finalPricesArray.push(result[result.length - 1]);
+      }
+
+      const q = math.quantileSeq(finalPricesArray, 0.01);
+      const meanFinalPrice = math.mean(finalPricesArray);
+
+      setStatistics({
+        startPrice: startPrice,
+        meanFinalPrice: meanFinalPrice,
+        VaR: startPrice - q,
+        quantile: q,
+      });
+
+      setFinalPrices(finalPricesArray);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching or parsing data:', error);
+      setIsLoading(false);
+    }
+  };
 
   const stockMonteCarlo = (startPrice, days, mu, sigma, dt) => {
     const price = new Array(days).fill(0);
@@ -88,14 +78,16 @@ function FinalPriceDistribution() {
     for (let i = 1; i < days; i++) {
       const shock = generateRandomNormal(0, sigma * Math.sqrt(dt));
       const drift = mu * dt;
-      // if (isNaN(shock) || isNaN(drift)) {
-      //   console.error(`NaN detected at day ${i}: Shock = ${shock}, Drift = ${drift}`);
-      // }
       price[i] = price[i - 1] + (price[i - 1] * (drift + shock));
-      // console.log(`Day ${i}: Shock = ${shock}, Drift = ${drift}, Price = ${price[i]}`); // Debugging price update
     }
 
     return price;
+  };
+
+  const handleRunSimulation = (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+    fetchData();
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -106,10 +98,19 @@ function FinalPriceDistribution() {
       <CCardBody>
         <div>
           <h1>Final Price Distribution for TD Stock</h1>
+          <form onSubmit={handleRunSimulation}>
+            <label>
+              Number of Simulations:
+              <input
+                type="number"
+                value={numSimulations}
+                onChange={(e) => setNumSimulations(parseInt(e.target.value))}
+              />
+            </label>
+            <button type="submit">Run Simulation</button>
+          </form>
           {finalPrices.length > 0 ? (
             <Plot
-
-            
               data={[
                 {
                   x: finalPrices,
@@ -167,60 +168,7 @@ function FinalPriceDistribution() {
         </div>
       </CCardBody>
     </CCard>
-
-    
-  )
+  );
 }
 
-
-//This graph shows the distribution of daily returns obtained during the simulations.
-
-// const dailyReturnsArray = [];
-// for (let run = 0; run < numSimulations; run++) {
-//   const pricePath = stockMonteCarlo(startPrice, days, mu, sigma, dt);
-//   const dailyReturns = pricePath.map((price, index) => {
-//     if (index === 0) return null;
-//     return (price - pricePath[index - 1]) / pricePath[index - 1];
-//   }).filter(returnVal => returnVal != null);
-//   dailyReturnsArray.push(...dailyReturns);
-// }
-
-// // ... inside the return statement
-
-// {
-//   x: dailyReturnsArray,
-//   type: 'histogram',
-//   nbinsx: 100, // Adjust number of bins for better visualization
-//   marker: { color: 'orange' },
-// },
-
-
-
-
-
-
-
-
-
-
-// This graph shows how the simulated stock price evolves over each day in the simulation period.
-
-
-// const pricePaths = [];
-// for (let run = 0; run < numSimulations; run++) {
-//   const pricePath = stockMonteCarlo(startPrice, days, mu, sigma, dt);
-//   pricePaths.push(pricePath);
-// }
-
-// // ... inside the return statement
-
-// {
-//   type: 'scatter',
-//   x: [...Array(days).keys()], // Array of days (0 to days-1)
-//   y: pricePaths.map(path => path), // Each simulated price path as a line
-//   mode: 'lines', // Draw lines for each path
-//   opacity: 0.2, // Reduce opacity to see multiple paths overlaid
-//   marker: { color: 'lightgrey' }, // Use a light color for clarity
-// },
-
-export default FinalPriceDistribution
+export default FinalPriceDistribution;

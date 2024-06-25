@@ -1,17 +1,21 @@
-import React, { useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import Plot from 'react-plotly.js'
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import Plot from 'react-plotly.js';
 import * as math from 'mathjs';
-import { CCard, CCardBody } from '@coreui/react'
+import { CCard, CCardBody } from '@coreui/react';
 
 function MeanReversion() {
   const [simulations, setSimulations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const dispatch = useDispatch()
-  const processedData = useSelector((state) => state.processedData)
-  
+  const [startPrice, setStartPrice] = useState(56.299999);
+  const [days, setDays] = useState(365);
+  const [numSimulations, setNumSimulations] = useState(100);
+  const dispatch = useDispatch();
+  const processedData = useSelector((state) => state.processedData);
+
   function generateRandomNormal(mean, stdDev) {
-    let u1 = 0, u2 = 0;
+    let u1 = 0,
+      u2 = 0;
     while (u1 === 0) u1 = Math.random(); // Converting [0,1) to (0,1)
     while (u2 === 0) u2 = Math.random();
     const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
@@ -19,42 +23,39 @@ function MeanReversion() {
   }
 
   useEffect(() => {
-    const fetchData =  () => {
-      try {
-        const closingPrices = processedData.map(row => row.close).filter(price => price != null);
-        const dailyReturns = closingPrices.map((price, index) => {
-          if (index === 0) return null;
-          return (price - closingPrices[index - 1]) / closingPrices[index - 1];
-        }).filter(returnVal => returnVal != null);
-
-        const mu = math.mean(dailyReturns);
-        const sigma = math.std(dailyReturns);
-
-        if (isNaN(mu) || isNaN(sigma)) {
-          throw new Error('Mu or Sigma calculation resulted in NaN');
-        }
-
-        const days = 365;
-        const dt = 1 / days;
-        const startPrice = 56.299999;
-        const numSimulations = 100;
-        const mrSimulations = runSimulations(startPrice, days, mu, sigma, dt, numSimulations, meanReversion);
-        
-
-        setSimulations([
-          { name: 'Mean Reversion', data: mrSimulations },
-      
-        ]);
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching or parsing data:', error);
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
+
+  const fetchData = () => {
+    try {
+      const closingPrices = processedData
+        .map((row) => row.close)
+        .filter((price) => price != null);
+      const dailyReturns = closingPrices.map((price, index) => {
+        if (index === 0) return null;
+        return (price - closingPrices[index - 1]) / closingPrices[index - 1];
+      }).filter((returnVal) => returnVal != null);
+
+      const mu = math.mean(dailyReturns);
+      const sigma = math.std(dailyReturns);
+
+      if (isNaN(mu) || isNaN(sigma)) {
+        throw new Error('Mu or Sigma calculation resulted in NaN');
+      }
+
+      const dt = 1 / days;
+      const mrSimulations = runSimulations(startPrice, days, mu, sigma, dt, numSimulations, meanReversion);
+
+      setSimulations([
+        { name: 'Mean Reversion', data: mrSimulations },
+      ]);
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching or parsing data:', error);
+      setIsLoading(false);
+    }
+  };
 
   const runSimulations = (startPrice, days, mu, sigma, dt, numSimulations, method) => {
     const simulationResults = [];
@@ -63,43 +64,6 @@ function MeanReversion() {
       simulationResults.push(result);
     }
     return simulationResults;
-  }
-
-  const basicMonteCarlo = (startPrice, days, mu, sigma, dt) => {
-    const price = new Array(days).fill(0);
-    price[0] = startPrice;
-    for (let i = 1; i < days; i++) {
-      const shock = generateRandomNormal(0, sigma * Math.sqrt(dt));
-      const drift = mu * dt;
-      price[i] = price[i - 1] + (price[i - 1] * (drift + shock));
-    }
-    return price;
-  };
-
-  const geometricBrownianMotion = (startPrice, days, mu, sigma, dt) => {
-    const price = new Array(days).fill(0);
-    price[0] = startPrice;
-    for (let i = 1; i < days; i++) {
-      const shock = generateRandomNormal(0, sigma * Math.sqrt(dt));
-      const drift = (mu - (sigma ** 2) / 2) * dt;
-      price[i] = price[i - 1] * Math.exp(drift + shock);
-    }
-    return price;
-  };
-
-  const jumpDiffusion = (startPrice, days, mu, sigma, dt) => {
-    const price = new Array(days).fill(0);
-    price[0] = startPrice;
-    const lambda = 0.01; // Jump frequency
-    const jumpMean = 0.01;
-    const jumpStdDev = 0.02;
-    for (let i = 1; i < days; i++) {
-      const shock = generateRandomNormal(0, sigma * Math.sqrt(dt));
-      const drift = (mu - (sigma ** 2) / 2) * dt;
-      const jump = Math.random() < lambda ? generateRandomNormal(jumpMean, jumpStdDev) : 0;
-      price[i] = price[i - 1] * Math.exp(drift + shock + jump);
-    }
-    return price;
   };
 
   const meanReversion = (startPrice, days, mu, sigma, dt) => {
@@ -115,15 +79,10 @@ function MeanReversion() {
     return price;
   };
 
-  const bootstrap = (startPrice, days) => {
-    const price = new Array(days).fill(0);
-    price[0] = startPrice;
-    const returns = processedData.map(row => row.close).filter(price => price != null);
-    for (let i = 1; i < days; i++) {
-      const randomReturn = returns[Math.floor(Math.random() * returns.length)];
-      price[i] = price[i - 1] * (1 + randomReturn);
-    }
-    return price;
+  const handleRunSimulation = (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+    fetchData();
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -133,7 +92,37 @@ function MeanReversion() {
       <CCard className="mb-4">
         <CCardBody>
           <div>
-            <h1>Monte Carlo Simulation for  Stock</h1>
+            <h1>Mean Reversion Monte Carlo Simulation</h1>
+            <form onSubmit={handleRunSimulation}>
+              <label>
+                Starting Stock Price:
+                <input
+                  type="number"
+                  value={startPrice}
+                  onChange={(e) => setStartPrice(parseFloat(e.target.value))}
+                />
+              </label>
+              <br />
+              <label>
+                Days of Simulation:
+                <input
+                  type="number"
+                  value={days}
+                  onChange={(e) => setDays(parseInt(e.target.value))}
+                />
+              </label>
+              <br />
+              <label>
+                Number of Simulations:
+                <input
+                  type="number"
+                  value={numSimulations}
+                  onChange={(e) => setNumSimulations(parseInt(e.target.value))}
+                />
+              </label>
+              <br />
+              <button type="submit">Run Simulation</button>
+            </form>
             {simulations.length > 0 && simulations.map((sim, index) => (
               <div key={index}>
                 <h2>{sim.name}</h2>
@@ -162,7 +151,7 @@ function MeanReversion() {
         </CCardBody>
       </CCard>
     </>
-  )
+  );
 }
 
-export default MeanReversion
+export default MeanReversion;

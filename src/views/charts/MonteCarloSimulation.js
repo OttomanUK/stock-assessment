@@ -1,42 +1,43 @@
-import React, { useState } from 'react'
-import Plot from 'react-plotly.js'
-import {CCard, CCardBody} from '@coreui/react'
-import { useSelector, useDispatch } from 'react-redux'
+import React, { useState } from 'react';
+import Plot from 'react-plotly.js';
+import { CCard, CCardBody } from '@coreui/react';
+import { useSelector, useDispatch } from 'react-redux';
 
 function MonteCarloSimulation() {
-  const dispatch = useDispatch()
-  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
-  const [startPrice, setStartPrice] = useState(56.299999)
-  const [days, setDays] = useState(100)
-  const [mu, setMu] = useState(0.1)
-  const [sigma, setSigma] = useState(0.2)
-  const [simulationData, setSimulationData] = useState([])
+  const dispatch = useDispatch();
+  const unfoldable = useSelector((state) => state.sidebarUnfoldable);
+  const [startPrice, setStartPrice] = useState(56.299999);
+  const [days, setDays] = useState(100);
+  const [mu, setMu] = useState(0.1);
+  const [sigma, setSigma] = useState(0.2);
+  const [simulationData, setSimulationData] = useState([]);
 
   const monteCarloSimulation = (startPrice, days, mu, sigma) => {
-    const dt = 1
-    let price = Array(days).fill(0)
-    price[0] = startPrice
+    const dt = 1;
+    let price = Array(days).fill(0);
+    price[0] = startPrice;
 
     for (let x = 1; x < days; x++) {
-      const shock = Math.random() * sigma * Math.sqrt(dt)
-      const drift = mu * dt
-      price[x] = price[x - 1] + price[x - 1] * (drift + shock)
+      const shock = Math.random() * sigma * Math.sqrt(dt);
+      const drift = mu * dt;
+      price[x] = price[x - 1] + price[x - 1] * (drift + shock);
     }
 
-    return price
-  }
+    return price;
+  };
 
   const runSimulation = (event) => {
-    event.preventDefault() // Prevent form submission and page reload
-    const simulatedPrices = monteCarloSimulation(startPrice, days, mu, sigma)
-    setSimulationData(simulatedPrices)
-  }
+    event.preventDefault(); // Prevent form submission and page reload
+    const simulatedPrices = monteCarloSimulation(startPrice, days, mu, sigma);
+    setSimulationData(simulatedPrices);
+  };
+
   return (
     <>
       <CCard className="mb-4">
         <CCardBody>
           <div>
-            <h1>Monte Carlo Simulation for  Stock</h1>
+            <h1>Monte Carlo Simulation for Stock</h1>
             <form onSubmit={(event) => runSimulation(event)}>
               <label>
                 Starting Stock Price:
@@ -89,7 +90,7 @@ function MonteCarloSimulation() {
                     },
                   ]}
                   layout={{
-                    title: 'Monte Carlo Simulation for ',
+                    title: 'Monte Carlo Simulation for Stock',
                     width: 1000,
                     height: 400,
                     plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
@@ -104,7 +105,7 @@ function MonteCarloSimulation() {
         </CCardBody>
       </CCard>
     </>
-  )
+  );
 }
 
-export default MonteCarloSimulation
+export default MonteCarloSimulation;

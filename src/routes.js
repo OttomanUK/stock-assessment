@@ -22,7 +22,7 @@ const routes = [
   { path: '/JumpDiffusion', name:'Jump Diffusion', element: JumpDiffusion},
   { path: '/MeanReversion', name:'Mean Reversion', element: MeanReversion},
   { path: '/Bootstrap', name:'Bootstrap', element: Bootstrap},
-  { path: '/PricePathSimulation', name:'Price Path Simulation', element: PricePathSimulation},
+  { path: '/Stress-Induced', name:'Stress-Induced Market Volatility ', element: PricePathSimulation},
 ]
 
 export default routes

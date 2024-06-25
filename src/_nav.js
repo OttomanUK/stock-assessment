@@ -60,8 +60,8 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Price Path Simulation',
-    to: '/PricePathSimulation',
+    name: 'Stress-Induced Market Volatility',
+    to: '/Stress-Induced',
   },
  
 ]
