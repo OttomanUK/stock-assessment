@@ -3,6 +3,7 @@ import Plot from 'react-plotly.js';
 import * as math from 'mathjs';
 import { useSelector } from 'react-redux';
 import { CCard, CCardBody } from '@coreui/react';
+import "./main.css"
 
 function FinalPriceDistribution() {
   const [finalPrices, setFinalPrices] = useState([]);
@@ -98,7 +99,7 @@ function FinalPriceDistribution() {
       <CCardBody>
         <div>
           <h1>Final Price Distribution for TD Stock</h1>
-          <form onSubmit={handleRunSimulation}>
+          <form   className="simulation-form"  onSubmit={handleRunSimulation}>
             <label>
               Number of Simulations:
               <input

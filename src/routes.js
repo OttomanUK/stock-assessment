@@ -8,7 +8,7 @@ const BrownianMotion = React.lazy(() => import('./views/charts/BrownianMotion'))
 const MeanReversion = React.lazy(() => import('./views/charts/MeanReversion'))
 const JumpDiffusion = React.lazy(() => import('./views/charts/JumpDiffusion'))
 const Bootstrap = React.lazy(() => import('./views/charts/Bootstrap'))
-const PricePathSimulation = React.lazy(() => import('./views/charts/PricePathSimulation'))
+const stressSimulation = React.lazy(() => import('./views/charts/stressSimulation'))
 
 // const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
@@ -22,7 +22,7 @@ const routes = [
   { path: '/JumpDiffusion', name:'Jump Diffusion', element: JumpDiffusion},
   { path: '/MeanReversion', name:'Mean Reversion', element: MeanReversion},
   { path: '/Bootstrap', name:'Bootstrap', element: Bootstrap},
-  { path: '/Stress-Induced', name:'Stress-Induced Market Volatility ', element: PricePathSimulation},
+  { path: '/Stress-Induced', name:'Stress-Induced Market Volatility ', element: stressSimulation},
 ]
 
 export default routes

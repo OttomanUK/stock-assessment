@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import Plot from 'react-plotly.js';
 import * as math from 'mathjs';
 import { CCard, CCardBody } from '@coreui/react';
+import './main.css'; // Import the CSS file
 
 function GeometricBrownianMotion() {
   const [simulations, setSimulations] = useState([]);
@@ -72,6 +73,8 @@ function GeometricBrownianMotion() {
     fetchData();
   };
 
+  const colors = ['blue', 'red', 'green', 'orange', 'purple', 'cyan', 'magenta', 'yellow', 'brown', 'grey'];
+
   if (isLoading) return <div>Loading...</div>;
 
   return (
@@ -80,7 +83,7 @@ function GeometricBrownianMotion() {
         <CCardBody>
           <div>
             <h1>Monte Carlo Simulation for Stock</h1>
-            <form onSubmit={handleRunSimulation}>
+            <form className="simulation-form" onSubmit={handleRunSimulation}>
               <label>
                 Starting Stock Price:
                 <input
@@ -89,7 +92,6 @@ function GeometricBrownianMotion() {
                   onChange={(e) => setStartPrice(parseFloat(e.target.value))}
                 />
               </label>
-              <br />
               <label>
                 Days of Simulation:
                 <input
@@ -98,7 +100,6 @@ function GeometricBrownianMotion() {
                   onChange={(e) => setDays(parseInt(e.target.value))}
                 />
               </label>
-              <br />
               <label>
                 Number of Simulations:
                 <input
@@ -107,7 +108,6 @@ function GeometricBrownianMotion() {
                   onChange={(e) => setNumSimulations(parseInt(e.target.value))}
                 />
               </label>
-              <br />
               <button type="submit">Run Simulation</button>
             </form>
             {simulations.length > 0 && (
@@ -118,7 +118,7 @@ function GeometricBrownianMotion() {
                   type: 'scatter',
                   mode: 'lines',
                   name: `Simulation ${index + 1}`,
-                  marker: { color: 'blue' },
+                  marker: { color: colors[index % colors.length] },
                 }))}
                 layout={{
                   title: 'Monte Carlo Analysis - Geometric Brownian Motion',
