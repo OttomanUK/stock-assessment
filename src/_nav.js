@@ -28,13 +28,13 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'MonteCarloSimulation',
+    name: 'Monte Carlo Simulation',
     to: '/MonteCarloSimulation',
     
   },
   {
     component: CNavItem,
-    name: 'Stock MonteCarlo',
+    name: 'Stock Monte Carlo',
     to: '/StockMonteCarlo',
   
   },
@@ -60,7 +60,7 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Stress-Induced Market Volatility',
+    name: 'Portfolio Optimization',
     to: '/Stress-Induced',
   },
  

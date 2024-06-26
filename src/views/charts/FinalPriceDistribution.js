@@ -117,7 +117,8 @@ function FinalPriceDistribution() {
                   x: finalPrices,
                   type: 'histogram',
                   nbinsx: 200,
-                  marker: { color: 'blue' },
+                  marker: { color: 'rgba(0, 188, 145, 0.8)'},
+                  
                 },
               ]}
               layout={{

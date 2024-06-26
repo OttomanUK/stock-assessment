@@ -192,7 +192,7 @@ function StressTesting() {
                 x: basePrices,
                 type: 'histogram',
                 nbinsx: 30,
-                marker: { color: 'rgba(55, 128, 191, 0.7)' },
+                marker: { color: 'rgba(0, 188, 145, 0.8)' },
               },
             ]}
             layout={{
@@ -219,7 +219,7 @@ function StressTesting() {
                     x: stressTestResults[scenario],
                     type: 'histogram',
                     nbinsx: 30,
-                    marker: { color: 'rgba(55, 128, 191, 0.7)' },
+                    marker: { color: 'rgba(0, 188, 145, 0.8)' },
                   },
                 ]}
                 layout={{
