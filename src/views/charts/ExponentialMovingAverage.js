@@ -73,7 +73,8 @@ function ExponentialMovingAverages() {
             name: ema.columnName,
             marker: { color: index === 0 ? 'blue' : index === 1 ? 'red' : index === 2 ? 'green' : 'orange' },
           }))}
-          layout={{ title: 'Different Exponential Moving Averages for  Stock', width: 1000, height: 400, plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+          layout={{ title: 'Different Exponential Moving Averages for  Stock',             xaxis: { title: 'Date' },
+            yaxis: { title: 'Exponential Moving Average' },width: 1000, height: 400, plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
             paper_bgcolor: 'rgba(0, 0, 0, 0)',  }}
         />
       )}

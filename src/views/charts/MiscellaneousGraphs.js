@@ -51,7 +51,7 @@ function MiscellaneousGraphs() {
             ema100: row['EMA for 100 days'],
             dailyReturn: row['Daily Return'],
           }))
-          console.log("uess")
+          console.log('uess')
           dispatch({ type: 'set', processedData: processedData1 })
         },
       })
@@ -118,8 +118,15 @@ function MiscellaneousGraphs() {
               marker: { color: 'blue' },
             },
           ]}
-          layout={{ title: 'Stock Closing Prices', width: 1000, height: 400 ,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
-            paper_bgcolor: 'rgba(0, 0, 0, 0)',}}
+          layout={{
+            title: 'Stock Closing Prices',
+            width: 1000,
+            height: 400,
+            xaxis: { title: 'Date' },
+            yaxis: { title: 'Closing Prices' },
+            plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',
+          }}
         />
       </div>
       <div>
@@ -133,8 +140,15 @@ function MiscellaneousGraphs() {
               marker: { color: 'orange' },
             },
           ]}
-          layout={{ title: 'Stock Trading Volume', width: 1000, height: 400 ,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
-            paper_bgcolor: 'rgba(0, 0, 0, 0)',}}
+          layout={{
+            title: 'Stock Trading Volume',
+            xaxis: { title: 'Date' },
+            yaxis: { title: 'Volume of Stock' },
+            width: 1000,
+            height: 400,
+            plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',
+          }}
         />
       </div>
       <div>
@@ -182,8 +196,15 @@ function MiscellaneousGraphs() {
               marker: { color: 'orange' },
             },
           ]}
-          layout={{ title: 'Stock Moving Averages', width: 1000, height: 400,  plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
-            paper_bgcolor: 'rgba(0, 0, 0, 0)', }}
+          layout={{
+            title: 'Stock Moving Averages',
+            xaxis: { title: 'Date' },
+            yaxis: { title: 'Moving Average' },
+            width: 1000,
+            height: 400,
+            plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+            paper_bgcolor: 'rgba(0, 0, 0, 0)',
+          }}
         />
       </div>
       <ExponentialMovingAverages />
