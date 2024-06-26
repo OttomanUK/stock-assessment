@@ -79,7 +79,7 @@ function ExponentialMovingAverages() {
         />
       )}
 
-      <h1>The daily return percentage for  Stock</h1>
+      {/* <h1>The daily return percentage for  Stock</h1>
       {dailyReturnData.length > 0 && (
         <Plot
           data={[
@@ -94,7 +94,7 @@ function ExponentialMovingAverages() {
           layout={{ title: 'The daily return percentage for  Stock', width: 1000, height: 400, plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
             paper_bgcolor: 'rgba(0, 0, 0, 0)', }}
         />
-      )}
+      )} */}
     </div>
   );
 }

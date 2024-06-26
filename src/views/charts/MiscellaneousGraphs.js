@@ -152,7 +152,7 @@ function MiscellaneousGraphs() {
         />
       </div>
       <div>
-        <h2>Different Moving Averages for stock data</h2>
+        <h2>Different Moving Averages For Stock Data</h2>
         <Plot
           data={[
             {

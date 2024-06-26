@@ -65,7 +65,7 @@ function DailyReturnAnalysis() {
               paper_bgcolor: 'rgba(0, 0, 0, 0)', }}
           />
 
-          <h2>Pairplot for Daily Return</h2>
+          {/* <h2>Pairplot for Daily Return</h2> */}
           {/* Add your Pairplot component here */}
           {/* Replace the below Plot component with the appropriate Pairplot component */}
 
