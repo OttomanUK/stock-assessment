@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import * as math from 'mathjs';
 import { useSelector } from 'react-redux';
 import { CCard, CCardBody,  } from '@coreui/react';
+import "./main.css"
 import Plot from 'react-plotly.js';
 
-function MonteCarloSimulation() {
+function StressTesting() {
   const [isLoading, setIsLoading] = useState(true);
   const [statistics, setStatistics] = useState(null);
   const [startPrice, setStartPrice] = useState(100); // Default start price
@@ -151,6 +152,8 @@ function MonteCarloSimulation() {
         <h1>Advanced Stochastic Modeling and Multi-Scenario Risk Analysis</h1>
         
         {/* Input fields for start price and confidence level */}
+        <form   className="simulation-form"  onSubmit={handleRunSimulation}>
+          
         <div>
           <label>Start Price:</label>{' '}
           <input
@@ -159,7 +162,7 @@ function MonteCarloSimulation() {
             onChange={handleStartPriceChange}
             step="0.01"
             min="0"
-          />
+            />
         </div>
         <div>
           <label>Confidence Level:</label>{' '}
@@ -170,13 +173,14 @@ function MonteCarloSimulation() {
             step="0.01"
             min="0"
             max="1"
-          />
+            />
         </div>
         
         {/* Run Simulation button */}
         < button color="primary" onClick={handleRunSimulation}>Run Simulation</button >
 
         {/* Display statistics and plots */}
+            </form>
         <div>
           <h2>Baseline Market Dynamics Projection</h2>
           <p>Initial Asset Valuation: ${base.startPrice.toFixed(2)}</p>
@@ -235,4 +239,4 @@ function MonteCarloSimulation() {
   );
 }
 
-export default MonteCarloSimulation;
+export default StressTesting;

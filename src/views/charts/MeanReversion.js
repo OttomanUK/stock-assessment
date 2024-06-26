@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Plot from 'react-plotly.js';
 import * as math from 'mathjs';
 import { CCard, CCardBody } from '@coreui/react';
+import './main.css'; // Import the CSS file
 
 function MeanReversion() {
   const [simulations, setSimulations] = useState([]);
@@ -85,6 +86,8 @@ function MeanReversion() {
     fetchData();
   };
 
+  const colors = ['blue', 'red', 'green', 'orange', 'purple', 'cyan', 'magenta', 'yellow', 'brown', 'grey'];
+
   if (isLoading) return <div>Loading...</div>;
 
   return (
@@ -93,34 +96,38 @@ function MeanReversion() {
         <CCardBody>
           <div>
             <h1>Mean Reversion Monte Carlo Simulation</h1>
-            <form onSubmit={handleRunSimulation}>
+            <form className="simulation-form" onSubmit={handleRunSimulation}>
+              <div>
+
               <label>
                 Starting Stock Price:
                 <input
                   type="number"
                   value={startPrice}
                   onChange={(e) => setStartPrice(parseFloat(e.target.value))}
-                />
+                  />
               </label>
-              <br />
+                  </div>
+                  <div>
               <label>
                 Days of Simulation:
                 <input
                   type="number"
                   value={days}
                   onChange={(e) => setDays(parseInt(e.target.value))}
-                />
+                  />
               </label>
-              <br />
+                  </div>
+                  <div>
               <label>
                 Number of Simulations:
                 <input
                   type="number"
                   value={numSimulations}
                   onChange={(e) => setNumSimulations(parseInt(e.target.value))}
-                />
+                  />
               </label>
-              <br />
+                  </div>
               <button type="submit">Run Simulation</button>
             </form>
             {simulations.length > 0 && simulations.map((sim, index) => (
@@ -133,7 +140,7 @@ function MeanReversion() {
                     type: 'scatter',
                     mode: 'lines',
                     name: `Simulation ${simIndex + 1}`,
-                    marker: { color: 'blue' },
+                    marker: { color: colors[simIndex % colors.length] },
                   }))}
                   layout={{
                     title: `Monte Carlo Analysis - ${sim.name}`,
